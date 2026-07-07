@@ -138,8 +138,8 @@ threshold_mean_func(const Device::Pointer & device, const Array::Pointer & src, 
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param labels Label image. [const Array::Pointer &]
  * @param properties Statistics properties map (including the background). [const StatisticsMap &]
- * @param property Name of the property to map. [std::string ( = "label" )]
  * @param dst Output parametric map. [Array::Pointer ( = None )]
+ * @param property Name of the property to map. [std::string ( = "label" )]
  * @return Array::Pointer
  *
  * @note 'label measurement', 'map', 'in assistant', 'combine'
@@ -192,7 +192,7 @@ mean_intensity_map_func(const Device::Pointer & device, const Array::Pointer & s
  *
  * @note 'label measurement', 'map', 'in assistant', 'combine'
  * @see https://clij.github.io/clij2-docs/reference_meanIntensityMap
- * @deprecated This function is deprecated. Use mean_intensity_map_func instead.
+ * @deprecated This function is deprecated. Use mean_intensity_map() instead.)
  */
 auto
 label_mean_intensity_map_func(const Device::Pointer & device, const Array::Pointer & src, const Array::Pointer & labels, Array::Pointer dst)
@@ -227,7 +227,7 @@ pixel_count_map_func(const Device::Pointer & device, const Array::Pointer & src,
  *
  * @note 'label measurement', 'map', 'in assistant'
  * @see https://clij.github.io/clij2-docs/reference_pixelCountMap
- * @deprecated This function is deprecated. Use pixel_count_map_func instead.
+ * @deprecated This function is deprecated. Use pixel_count_map() instead.
  */
 auto
 label_pixel_count_map_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
@@ -317,7 +317,7 @@ remove_labels_with_map_values_within_range_func(const Device::Pointer & device,
  *
  * @note 'label processing', 'combine'
  * @see https://clij.github.io/clij2-docs/reference_excludeLabelsWithValuesOutOfRange
- * @deprecated This function is deprecated. Use remove_labels_with_map_values_out_of_range_func instead.
+ * @deprecated This function is deprecated. Use remove_labels_with_map_values_out_of_range() instead.
  */
 auto
 exclude_labels_with_map_values_out_of_range_func(const Device::Pointer & device,
@@ -342,7 +342,7 @@ exclude_labels_with_map_values_out_of_range_func(const Device::Pointer & device,
  *
  * @note 'label processing', 'combine'
  * @see https://clij.github.io/clij2-docs/reference_excludeLabelsWithValuesWithinRange
- * @deprecated This function is deprecated. Use remove_labels_with_values_within_range_func instead.
+ * @deprecated This function is deprecated. Use remove_labels_with_map_values_within_range() instead.
  */
 auto
 exclude_labels_with_map_values_within_range_func(const Device::Pointer & device,
