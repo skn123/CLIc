@@ -14,7 +14,7 @@ __kernel void label_spots_in_x(
     IMAGE_dst_TYPE dst,
     IMAGE_countX_TYPE countX,
     IMAGE_countXY_TYPE countXY
-) 
+)
 {
   const int y = get_global_id(1);
   const int z = get_global_id(2);

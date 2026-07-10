@@ -439,7 +439,8 @@ sum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src
 }
 
 auto
-x_position_of_maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
+x_position_of_maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims)
+  -> Array::Pointer
 {
   tier0::create_yz(src, dst, dType::INDEX, keep_dims);
   const KernelInfo    kernel = { "x_position_of_maximum_x_projection", kernel::x_position_of_maximum_x_projection };
@@ -454,7 +455,8 @@ x_position_of_maximum_x_projection_func(const Device::Pointer & device, const Ar
 }
 
 auto
-x_position_of_minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
+x_position_of_minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims)
+  -> Array::Pointer
 {
   tier0::create_yz(src, dst, dType::INDEX, keep_dims);
   const KernelInfo    kernel = { "x_position_of_minimum_x_projection", kernel::x_position_of_minimum_x_projection };
@@ -469,7 +471,8 @@ x_position_of_minimum_x_projection_func(const Device::Pointer & device, const Ar
 }
 
 auto
-y_position_of_maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
+y_position_of_maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims)
+  -> Array::Pointer
 {
   tier0::create_xz(src, dst, dType::INDEX, keep_dims);
   const KernelInfo    kernel = { "y_position_of_maximum_y_projection", kernel::y_position_of_maximum_y_projection };
@@ -484,7 +487,8 @@ y_position_of_maximum_y_projection_func(const Device::Pointer & device, const Ar
 }
 
 auto
-y_position_of_minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
+y_position_of_minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims)
+  -> Array::Pointer
 {
   tier0::create_xz(src, dst, dType::INDEX, keep_dims);
   const KernelInfo    kernel = { "y_position_of_minimum_y_projection", kernel::y_position_of_minimum_y_projection };
@@ -499,7 +503,8 @@ y_position_of_minimum_y_projection_func(const Device::Pointer & device, const Ar
 }
 
 auto
-z_position_of_maximum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
+z_position_of_maximum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims)
+  -> Array::Pointer
 {
   tier0::create_xy(src, dst, dType::INDEX, keep_dims);
   const KernelInfo    kernel = { "z_position_of_maximum_z_projection", kernel::z_position_of_maximum_z_projection };
@@ -510,7 +515,8 @@ z_position_of_maximum_z_projection_func(const Device::Pointer & device, const Ar
 }
 
 auto
-z_position_of_minimum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
+z_position_of_minimum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims)
+  -> Array::Pointer
 {
   tier0::create_xy(src, dst, dType::INDEX, keep_dims);
   const KernelInfo    kernel = { "z_position_of_minimum_z_projection", kernel::z_position_of_minimum_z_projection };
