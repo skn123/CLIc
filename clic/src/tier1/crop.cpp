@@ -19,6 +19,12 @@ crop_func(const Device::Pointer & device,
           int                     height,
           int                     depth) -> Array::Pointer
 {
+  if (dst != nullptr)
+  {
+    width = static_cast<int>(dst->width());
+    height = static_cast<int>(dst->height());
+    depth = static_cast<int>(dst->depth());
+  }
   tier0::create_dst(src, dst, width, height, depth);
   const KernelInfo    kernel = { "crop", kernel::crop };
   const ParameterList params = { { "src", src }, { "dst", dst }, { "index0", start_x }, { "index1", start_y }, { "index2", start_z } };

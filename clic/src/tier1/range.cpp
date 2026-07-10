@@ -22,12 +22,14 @@ range_func(const Device::Pointer & device,
            int                     stop_z,
            int                     step_z) -> Array::Pointer
 {
-  tier0::create_dst(src,
-                    dst,
-                    abs(stop_x - start_x) / std::max(std::abs(step_x), 1),
-                    abs(stop_y - start_y) / std::max(std::abs(step_y), 1),
-                    abs(stop_z - start_z) / std::max(std::abs(step_z), 1),
-                    src->dtype());
+  const size_t range_width = std::max<size_t>(abs(stop_x - start_x) / std::max(std::abs(step_x), 1), 1);
+  const size_t range_height = std::max<size_t>(abs(stop_y - start_y) / std::max(std::abs(step_y), 1), 1);
+  const size_t range_depth = std::max<size_t>(abs(stop_z - start_z) / std::max(std::abs(step_z), 1), 1);
+
+  if (dst == nullptr)
+  {
+    tier0::create_dst(src, dst, range_width, range_height, range_depth, src->dtype());
+  }
 
   correct_range(&start_x, &stop_x, &step_x, static_cast<int>(src->width()));
   correct_range(&start_y, &stop_y, &step_y, static_cast<int>(src->height()));
@@ -36,7 +38,7 @@ range_func(const Device::Pointer & device,
   const KernelInfo    kernel = { "range", kernel::range };
   const ParameterList params = { { "src", src },         { "dst", dst },       { "start_x", start_x }, { "step_x", step_x },
                                  { "start_y", start_y }, { "step_y", step_y }, { "start_z", start_z }, { "step_z", step_z } };
-  const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
+  const RangeArray    range = { range_width, range_height, range_depth };
   execute(device, kernel, params, range);
   return dst;
 }
