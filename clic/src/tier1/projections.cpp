@@ -9,8 +9,6 @@
 #include "cle_minimum_projection.h"
 #include "cle_sum_projection.h"
 
-#include "cle_x_position_of_maximum_x_projection.h"
-#include "cle_x_position_of_minimum_x_projection.h"
 #include "cle_y_position_of_maximum_y_projection.h"
 #include "cle_y_position_of_minimum_y_projection.h"
 #include "cle_z_position_of_maximum_z_projection.h"
@@ -56,17 +54,148 @@ __kernel void std_projection(
     m2 += delta * delta2;
   }
 
-  const float std_value = (n > 1) ? sqrt(m2 / (float)(n - 1)) : 0;
+  const float std_value = (n > 0) ? sqrt(m2 / (float)n) : 0;
 
-  // Output coordinates based on create_* output layout:
-  // X projection: create_zy -> (depth, height, 1) range {height, width, 1}
-  // Y projection: create_xz -> (width, depth, 1) range {width, depth, 1}
-  // Z projection: create_xy -> (width, height, 1) range {width, height, 1}
-  const int ox = (axis == 0) ? id1 : id0;
-  const int oy = (axis == 0) ? id0 : id1;
+  const int ox = id0;
+  const int oy = id1;
   const int oz = 0;
 
   WRITE_IMAGE(dst, POS_dst_INSTANCE(ox, oy, oz, 0), CONVERT_dst_PIXEL_TYPE(std_value));
+}
+)CLC";
+
+constexpr const char * maximum_x_projection = R"CLC(
+__constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
+
+__kernel void maximum_x_projection(
+    IMAGE_src_TYPE  src,
+    IMAGE_dst_TYPE  dst
+)
+{
+  const int y = get_global_id(0);
+  const int z = get_global_id(1);
+
+  IMAGE_src_PIXEL_TYPE maximum = READ_IMAGE(src, sampler, POS_src_INSTANCE(0, y, z, 0)).x;
+  for (int x = 1; x < GET_IMAGE_WIDTH(src); ++x)
+  {
+    const IMAGE_src_PIXEL_TYPE value = READ_IMAGE(src, sampler, POS_src_INSTANCE(x, y, z, 0)).x;
+    maximum = (maximum > value) ? maximum : value;
+  }
+  WRITE_IMAGE(dst, POS_dst_INSTANCE(y, z, 0, 0), CONVERT_dst_PIXEL_TYPE(maximum));
+}
+)CLC";
+
+constexpr const char * minimum_x_projection = R"CLC(
+__constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
+
+__kernel void minimum_x_projection(
+    IMAGE_src_TYPE  src,
+    IMAGE_dst_TYPE  dst
+)
+{
+  const int y = get_global_id(0);
+  const int z = get_global_id(1);
+
+  IMAGE_src_PIXEL_TYPE minimum = READ_IMAGE(src, sampler, POS_src_INSTANCE(0, y, z, 0)).x;
+  for (int x = 1; x < GET_IMAGE_WIDTH(src); ++x)
+  {
+    const IMAGE_src_PIXEL_TYPE value = READ_IMAGE(src, sampler, POS_src_INSTANCE(x, y, z, 0)).x;
+    minimum = (minimum < value) ? minimum : value;
+  }
+  WRITE_IMAGE(dst, POS_dst_INSTANCE(y, z, 0, 0), CONVERT_dst_PIXEL_TYPE(minimum));
+}
+)CLC";
+
+constexpr const char * mean_x_projection = R"CLC(
+__constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
+
+__kernel void mean_x_projection(
+    IMAGE_src_TYPE  src,
+    IMAGE_dst_TYPE  dst
+)
+{
+  const int y = get_global_id(0);
+  const int z = get_global_id(1);
+
+  float sum = (float) READ_IMAGE(src, sampler, POS_src_INSTANCE(0, y, z, 0)).x;
+  for (int x = 1; x < GET_IMAGE_WIDTH(src); ++x)
+  {
+    sum += (float) READ_IMAGE(src, sampler, POS_src_INSTANCE(x, y, z, 0)).x;
+  }
+  float mean = sum / GET_IMAGE_WIDTH(src);
+  WRITE_IMAGE(dst, POS_dst_INSTANCE(y, z, 0, 0), CONVERT_dst_PIXEL_TYPE(mean));
+}
+)CLC";
+
+constexpr const char * sum_x_projection = R"CLC(
+__constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
+
+__kernel void sum_x_projection(
+    IMAGE_src_TYPE  src,
+    IMAGE_dst_TYPE  dst
+)
+{
+  const int y = get_global_id(0);
+  const int z = get_global_id(1);
+
+  float sum = (float) READ_IMAGE(src, sampler, POS_src_INSTANCE(0, y, z, 0)).x;
+  for (int x = 1; x < GET_IMAGE_WIDTH(src); ++x)
+  {
+    sum += (float) READ_IMAGE(src, sampler, POS_src_INSTANCE(x, y, z, 0)).x;
+  }
+  WRITE_IMAGE(dst, POS_dst_INSTANCE(y, z, 0, 0), CONVERT_dst_PIXEL_TYPE(sum));
+}
+)CLC";
+
+constexpr const char * x_position_of_maximum_x_projection = R"CLC(
+__constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
+
+__kernel void x_position_of_maximum_x_projection(
+    IMAGE_src_TYPE  src,
+    IMAGE_dst_TYPE  dst
+)
+{
+  const int y = get_global_id(0);
+  const int z = get_global_id(1);
+
+  float max = 0;
+  int   max_pos = 0;
+  for (int x = 0; x < GET_IMAGE_WIDTH(src); ++x)
+  {
+    float value = READ_IMAGE(src, sampler, POS_src_INSTANCE(x, y, z, 0)).x;
+    if (value > max || x == 0)
+    {
+      max = value;
+      max_pos = x;
+    }
+  }
+  WRITE_IMAGE(dst, POS_dst_INSTANCE(y, z, 0, 0), CONVERT_dst_PIXEL_TYPE(max_pos));
+}
+)CLC";
+
+constexpr const char * x_position_of_minimum_x_projection = R"CLC(
+__constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
+
+__kernel void x_position_of_minimum_x_projection(
+    IMAGE_src_TYPE  src,
+    IMAGE_dst_TYPE  dst
+)
+{
+  const int y = get_global_id(0);
+  const int z = get_global_id(1);
+
+  float min = 0;
+  int   min_pos = 0;
+  for (int x = 0; x < GET_IMAGE_WIDTH(src); ++x)
+  {
+    float value = READ_IMAGE(src, sampler, POS_src_INSTANCE(x, y, z, 0)).x;
+    if (value < min || x == 0)
+    {
+      min = value;
+      min_pos = x;
+    }
+  }
+  WRITE_IMAGE(dst, POS_dst_INSTANCE(y, z, 0, 0), CONVERT_dst_PIXEL_TYPE(min_pos));
 }
 )CLC";
 
@@ -75,14 +204,32 @@ __kernel void std_projection(
 namespace cle::tier1
 {
 
+namespace
+{
+auto
+keepdims_y(const Array::Pointer & src, const Array::Pointer & dst) -> Array::Pointer
+{
+  return dst->reshape(dst->width(), 1, dst->height(), src->dimension());
+}
+auto
+keepdims_x(const Array::Pointer & src, const Array::Pointer & dst) -> Array::Pointer
+{
+  return dst->reshape(1, dst->width(), dst->height(), src->dimension());
+}
+} // namespace
+
 auto
 std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_zy(src, dst, dType::FLOAT, keep_dims);
+  tier0::create_yz(src, dst, dType::FLOAT, keep_dims);
   const KernelInfo    kernel = { "std_projection", kernel::std_projection_kernel };
   const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 0 } };
   const RangeArray    range = { dst->width(), dst->height(), 1 };
   execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_x(src, dst);
+  }
   return dst;
 }
 
@@ -94,6 +241,10 @@ std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src
   const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 1 } };
   const RangeArray    range = { dst->width(), dst->height(), 1 };
   execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_y(src, dst);
+  }
   return dst;
 }
 
@@ -111,13 +262,15 @@ std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src
 auto
 maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_zy(src, dst, dType::UNKNOWN, keep_dims);
-  const KernelInfo    kernel = { "maximum_projection", kernel::maximum_projection };
+  tier0::create_yz(src, dst, dType::UNKNOWN, keep_dims);
+  const KernelInfo    kernel = { "maximum_x_projection", kernel::maximum_x_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
-  const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
-  const RangeArray    local = { 0, 0, 0 };
-  const ConstantList  constants = { { "PROJECTION_AXIS", 0 } }; // 0 for X axis
-  execute(device, kernel, params, range, local, constants);
+  const RangeArray    range = { dst->width(), dst->height(), 1 };
+  execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_x(src, dst);
+  }
   return dst;
 }
 
@@ -131,6 +284,10 @@ maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer &
   const RangeArray    local = { 0, 0, 0 };
   const ConstantList  constants = { { "PROJECTION_AXIS", 1 } }; // 1 for Y axis
   execute(device, kernel, params, range, local, constants);
+  if (keep_dims)
+  {
+    dst = keepdims_y(src, dst);
+  }
   return dst;
 }
 
@@ -150,13 +307,15 @@ maximum_z_projection_func(const Device::Pointer & device, const Array::Pointer &
 auto
 mean_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_zy(src, dst, dType::UNKNOWN, keep_dims);
-  const KernelInfo    kernel = { "mean_projection", kernel::mean_projection };
+  tier0::create_yz(src, dst, dType::UNKNOWN, keep_dims);
+  const KernelInfo    kernel = { "mean_x_projection", kernel::mean_x_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
-  const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
-  const RangeArray    local = { 0, 0, 0 };
-  const ConstantList  constants = { { "PROJECTION_AXIS", 0 } }; // 0 for X axis
-  execute(device, kernel, params, range, local, constants);
+  const RangeArray    range = { dst->width(), dst->height(), 1 };
+  execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_x(src, dst);
+  }
   return dst;
 }
 
@@ -170,6 +329,10 @@ mean_y_projection_func(const Device::Pointer & device, const Array::Pointer & sr
   const RangeArray    local = { 0, 0, 0 };
   const ConstantList  constants = { { "PROJECTION_AXIS", 1 } }; // 1 for Y axis
   execute(device, kernel, params, range, local, constants);
+  if (keep_dims)
+  {
+    dst = keepdims_y(src, dst);
+  }
   return dst;
 }
 
@@ -189,13 +352,15 @@ mean_z_projection_func(const Device::Pointer & device, const Array::Pointer & sr
 auto
 minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_zy(src, dst, dType::UNKNOWN, keep_dims);
-  const KernelInfo    kernel = { "minimum_projection", kernel::minimum_projection };
+  tier0::create_yz(src, dst, dType::UNKNOWN, keep_dims);
+  const KernelInfo    kernel = { "minimum_x_projection", kernel::minimum_x_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
-  const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
-  const RangeArray    local = { 0, 0, 0 };
-  const ConstantList  constants = { { "PROJECTION_AXIS", 0 } }; // 0 for X axis
-  execute(device, kernel, params, range, local, constants);
+  const RangeArray    range = { dst->width(), dst->height(), 1 };
+  execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_x(src, dst);
+  }
   return dst;
 }
 auto
@@ -208,6 +373,10 @@ minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer &
   const RangeArray    local = { 0, 0, 0 };
   const ConstantList  constants = { { "PROJECTION_AXIS", 1 } }; // 1 for Y axis
   execute(device, kernel, params, range, local, constants);
+  if (keep_dims)
+  {
+    dst = keepdims_y(src, dst);
+  }
   return dst;
 }
 
@@ -227,13 +396,15 @@ minimum_z_projection_func(const Device::Pointer & device, const Array::Pointer &
 auto
 sum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_zy(src, dst, dType::FLOAT, keep_dims);
-  const KernelInfo    kernel = { "sum_projection", kernel::sum_projection };
+  tier0::create_yz(src, dst, dType::FLOAT, keep_dims);
+  const KernelInfo    kernel = { "sum_x_projection", kernel::sum_x_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
-  const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
-  const RangeArray    local = { 0, 0, 0 };
-  const ConstantList  constants = { { "PROJECTION_AXIS", 0 } }; // 0 for X axis
-  execute(device, kernel, params, range, local, constants);
+  const RangeArray    range = { dst->width(), dst->height(), 1 };
+  execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_x(src, dst);
+  }
   return dst;
 }
 
@@ -247,6 +418,10 @@ sum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src
   const RangeArray    local = { 0, 0, 0 };
   const ConstantList  constants = { { "PROJECTION_AXIS", 1 } }; // 1 for Y axis
   execute(device, kernel, params, range, local, constants);
+  if (keep_dims)
+  {
+    dst = keepdims_y(src, dst);
+  }
   return dst;
 }
 
@@ -264,53 +439,69 @@ sum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src
 }
 
 auto
-x_position_of_maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+x_position_of_maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_zy(src, dst, dType::INDEX);
+  tier0::create_yz(src, dst, dType::INDEX, keep_dims);
   const KernelInfo    kernel = { "x_position_of_maximum_x_projection", kernel::x_position_of_maximum_x_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
-  const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
+  const RangeArray    range = { dst->width(), dst->height(), 1 };
   execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_x(src, dst);
+  }
   return dst;
 }
 
 auto
-x_position_of_minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+x_position_of_minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_zy(src, dst, dType::INDEX);
+  tier0::create_yz(src, dst, dType::INDEX, keep_dims);
   const KernelInfo    kernel = { "x_position_of_minimum_x_projection", kernel::x_position_of_minimum_x_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
-  const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
+  const RangeArray    range = { dst->width(), dst->height(), 1 };
   execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_x(src, dst);
+  }
   return dst;
 }
 
 auto
-y_position_of_maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+y_position_of_maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xz(src, dst, dType::INDEX);
+  tier0::create_xz(src, dst, dType::INDEX, keep_dims);
   const KernelInfo    kernel = { "y_position_of_maximum_y_projection", kernel::y_position_of_maximum_y_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
   execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_y(src, dst);
+  }
   return dst;
 }
 
 auto
-y_position_of_minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+y_position_of_minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xz(src, dst, dType::INDEX);
+  tier0::create_xz(src, dst, dType::INDEX, keep_dims);
   const KernelInfo    kernel = { "y_position_of_minimum_y_projection", kernel::y_position_of_minimum_y_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
   execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_y(src, dst);
+  }
   return dst;
 }
 
 auto
-z_position_of_maximum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+z_position_of_maximum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xy(src, dst, dType::INDEX);
+  tier0::create_xy(src, dst, dType::INDEX, keep_dims);
   const KernelInfo    kernel = { "z_position_of_maximum_z_projection", kernel::z_position_of_maximum_z_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
@@ -319,9 +510,9 @@ z_position_of_maximum_z_projection_func(const Device::Pointer & device, const Ar
 }
 
 auto
-z_position_of_minimum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+z_position_of_minimum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xy(src, dst, dType::INDEX);
+  tier0::create_xy(src, dst, dType::INDEX, keep_dims);
   const KernelInfo    kernel = { "z_position_of_minimum_z_projection", kernel::z_position_of_minimum_z_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
