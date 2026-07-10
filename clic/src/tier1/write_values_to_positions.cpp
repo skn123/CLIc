@@ -21,7 +21,7 @@ write_values_to_positions_func(const Device::Pointer & device, const Array::Poin
   {
     // flatten the coords to get the max position value in x,y,z
     // as well as the number of rows (2->1D, 3->2D, 4->3D)
-    auto temp = Array::create(1, list->height(), 1, 2, dType::INT32, list->mtype(), list->device());
+    auto temp = Array::create(list->height(), 1, 1, 2, dType::INT32, list->mtype(), list->device());
     maximum_x_projection_func(device, list, temp);
     std::vector<int> max_position(temp->size());
     temp->readTo(max_position.data());

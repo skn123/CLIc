@@ -3088,12 +3088,16 @@ write_values_to_positions_func(const Device::Pointer & device, const Array::Poin
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image stack [const Array::Pointer &]
  * @param dst altitude map [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  * @note 'projection', 'in assistant'
  *
  */
 auto
-x_position_of_maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+x_position_of_maximum_x_projection_func(const Device::Pointer & device,
+                                        const Array::Pointer &  src,
+                                        Array::Pointer          dst,
+                                        bool                    keep_dims = false) -> Array::Pointer;
 
 
 /**
@@ -3104,12 +3108,16 @@ x_position_of_maximum_x_projection_func(const Device::Pointer & device, const Ar
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image stack [const Array::Pointer &]
  * @param dst altitude map [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  * @note 'projection', 'in assistant'
  *
  */
 auto
-x_position_of_minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+x_position_of_minimum_x_projection_func(const Device::Pointer & device,
+                                        const Array::Pointer &  src,
+                                        Array::Pointer          dst,
+                                        bool                    keep_dims = false) -> Array::Pointer;
 
 
 /**
@@ -3120,12 +3128,16 @@ x_position_of_minimum_x_projection_func(const Device::Pointer & device, const Ar
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image stack [const Array::Pointer &]
  * @param dst altitude map [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  * @note 'projection', 'in assistant'
  *
  */
 auto
-y_position_of_maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+y_position_of_maximum_y_projection_func(const Device::Pointer & device,
+                                        const Array::Pointer &  src,
+                                        Array::Pointer          dst,
+                                        bool                    keep_dims = false) -> Array::Pointer;
 
 
 /**
@@ -3136,12 +3148,16 @@ y_position_of_maximum_y_projection_func(const Device::Pointer & device, const Ar
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image stack [const Array::Pointer &]
  * @param dst altitude map [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  * @note 'projection', 'in assistant'
  *
  */
 auto
-y_position_of_minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+y_position_of_minimum_y_projection_func(const Device::Pointer & device,
+                                        const Array::Pointer &  src,
+                                        Array::Pointer          dst,
+                                        bool                    keep_dims = false) -> Array::Pointer;
 
 
 /**
@@ -3152,12 +3168,16 @@ y_position_of_minimum_y_projection_func(const Device::Pointer & device, const Ar
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image stack [const Array::Pointer &]
  * @param dst altitude map [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  * @note 'projection', 'in assistant'
  *
  */
 auto
-z_position_of_maximum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+z_position_of_maximum_z_projection_func(const Device::Pointer & device,
+                                        const Array::Pointer &  src,
+                                        Array::Pointer          dst,
+                                        bool                    keep_dims = false) -> Array::Pointer;
 
 
 /**
@@ -3168,12 +3188,16 @@ z_position_of_maximum_z_projection_func(const Device::Pointer & device, const Ar
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image stack [const Array::Pointer &]
  * @param dst altitude map [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  * @note 'projection', 'in assistant'
  *
  */
 auto
-z_position_of_minimum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+z_position_of_minimum_z_projection_func(const Device::Pointer & device,
+                                        const Array::Pointer &  src,
+                                        Array::Pointer          dst,
+                                        bool                    keep_dims = false) -> Array::Pointer;
 
 /**
  * @name z_position_projection
