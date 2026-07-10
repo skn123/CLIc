@@ -4,7 +4,43 @@
 
 #include "utils.hpp"
 
-#include "cle_label_spots_in_x.h"
+namespace kernel
+{
+constexpr const char * label_spots_in_x = R"CLC(
+  const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
+
+__kernel void label_spots_in_x(
+    IMAGE_src_TYPE src,
+    IMAGE_dst_TYPE dst,
+    IMAGE_countX_TYPE countX,
+    IMAGE_countXY_TYPE countXY
+) 
+{
+  const int y = get_global_id(1);
+  const int z = get_global_id(2);
+
+  if (y >= GET_IMAGE_HEIGHT(dst)) return;
+  if (z >= GET_IMAGE_DEPTH(dst)) return;
+
+  int startingIndex = 0;
+  for (int iz = 0; iz < z; iz++) {
+    startingIndex = startingIndex + READ_IMAGE(countXY, sampler, POS_countXY_INSTANCE(iz, 0, 0, 0)).x;
+  }
+  for (int iy = 0; iy < y; iy++) {
+    startingIndex = startingIndex + READ_IMAGE(countX, sampler, POS_countX_INSTANCE(iy, z, 0, 0)).x;
+  }
+  for(int x = 0; x < GET_IMAGE_WIDTH(src); x++)
+  {
+    float value = READ_IMAGE(src, sampler, POS_src_INSTANCE(x,y,z,0)).x;
+    if (value != 0) {
+      startingIndex++;
+      WRITE_IMAGE(dst, POS_dst_INSTANCE(x,y,z,0), CONVERT_dst_PIXEL_TYPE(startingIndex));
+    }
+  }
+}
+
+)CLC";
+} // namespace kernel
 
 namespace cle::tier2
 {
@@ -16,7 +52,7 @@ label_spots_func(const Device::Pointer & device, const Array::Pointer & src, Arr
   dst->fill(0);
 
   auto spot_count_in_x = tier1::sum_x_projection_func(device, src, nullptr);
-  auto spot_count_in_xy = tier1::sum_y_projection_func(device, spot_count_in_x, nullptr);
+  auto spot_count_in_xy = tier1::sum_x_projection_func(device, spot_count_in_x, nullptr);
 
   const KernelInfo    kernel = { "label_spots_in_x", kernel::label_spots_in_x };
   const ParameterList params = { { "src", src }, { "dst", dst }, { "countX", spot_count_in_x }, { "countXY", spot_count_in_xy } };
@@ -36,7 +72,7 @@ pointlist_to_labelled_spots_func(const Device::Pointer & device, const Array::Po
 
     // Determine the maximum in each dimension, it should return a 1 x ndims x 1 array
     auto max = tier1::maximum_x_projection_func(device, src, nullptr);
-    max->readTo(max_value.data(), { 1, ndims, 1 }, { 0, 0, 0 });
+    max->readTo(max_value.data(), { ndims, 1, 1 }, { 0, 0, 0 });
 
     int width = (ndims > 0) ? static_cast<int>(max_value[0]) + 1 : 1;
     int height = (ndims > 1) ? static_cast<int>(max_value[1]) + 1 : 1;
