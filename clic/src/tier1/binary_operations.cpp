@@ -18,17 +18,17 @@ auto
 binary_supinf_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
 {
   cle::Array::Pointer in = nullptr;
-  if (src->dtype() != dType::BINARY)
+  if (src->dtype() != dType::BOOL)
   {
     std::cerr << "Warning: Source image of binary_supinf expected to be binary, " << src->dtype() << " given." << std::endl;
-    tier0::create_like(src, in, dType::BINARY);
+    tier0::create_like(src, in, dType::BOOL);
     tier1::copy_func(device, src, in);
   }
   else
   {
     in = src;
   }
-  tier0::create_like(src, dst, dType::BINARY);
+  tier0::create_like(src, dst, dType::BOOL);
   const KernelInfo    kernel = in->depth() > 1 ? KernelInfo{ "superior_inferior", kernel::superior_inferior_3d }
                                                : KernelInfo{ "superior_inferior", kernel::superior_inferior_2d };
   const ParameterList params = { { "src", in }, { "dst", dst } };
@@ -41,17 +41,17 @@ auto
 binary_infsup_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
 {
   cle::Array::Pointer in = nullptr;
-  if (src->dtype() != dType::BINARY)
+  if (src->dtype() != dType::BOOL)
   {
     std::cerr << "Warning: Source image of binary_infsup expected to be binary, " << src->dtype() << " given." << std::endl;
-    tier0::create_like(src, in, dType::BINARY);
+    tier0::create_like(src, in, dType::BOOL);
     tier1::copy_func(device, src, in);
   }
   else
   {
     in = src;
   }
-  tier0::create_like(src, dst, dType::BINARY);
+  tier0::create_like(src, dst, dType::BOOL);
   const KernelInfo    kernel = in->depth() > 1 ? KernelInfo{ "inferior_superior", kernel::inferior_superior_3d }
                                                : KernelInfo{ "inferior_superior", kernel::inferior_superior_2d };
   const ParameterList params = { { "src", in }, { "dst", dst } };
@@ -63,7 +63,7 @@ binary_infsup_func(const Device::Pointer & device, const Array::Pointer & src, A
 auto
 binary_edge_detection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
 {
-  tier0::create_like(src, dst, dType::BINARY);
+  tier0::create_like(src, dst, dType::BOOL);
   const KernelInfo    kernel = { "binary_edge_detection", kernel::binary_edge_detection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };

@@ -130,7 +130,7 @@ morphological_chan_vese_func(const Device::Pointer & device,
   {
     // dst is the initialisation contour
     // if not provided, use a checkerboard pattern as initialisation
-    tier0::create_like(src, dst, dType::BINARY);
+    tier0::create_like(src, dst, dType::BOOL);
     create_checkerboard_init(src, dst, 5);
   }
   // enforce contour (dst) to be binary

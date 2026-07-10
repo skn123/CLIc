@@ -125,6 +125,7 @@ multiply_image_and_scalar_func(const Device::Pointer & device, const Array::Poin
 auto
 greater_constant_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar) -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::BOOL);
   return apply_binary_math_operation(device, src, dst, scalar, "(x > y ? 1.0f : 0.0f)");
 }
 
@@ -132,12 +133,14 @@ auto
 greater_or_equal_constant_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar)
   -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::BOOL);
   return apply_binary_math_operation(device, src, dst, scalar, "(x >= y ? 1.0f : 0.0f)");
 }
 
 auto
 smaller_constant_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar) -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::BOOL);
   return apply_binary_math_operation(device, src, dst, scalar, "(x < y ? 1.0f : 0.0f)");
 }
 
@@ -145,18 +148,21 @@ auto
 smaller_or_equal_constant_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar)
   -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::BOOL);
   return apply_binary_math_operation(device, src, dst, scalar, "(x <= y ? 1.0f : 0.0f)");
 }
 
 auto
 equal_constant_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar) -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::BOOL);
   return apply_binary_math_operation(device, src, dst, scalar, "(x == y ? 1.0f : 0.0f)");
 }
 
 auto
 not_equal_constant_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar) -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::BOOL);
   return apply_binary_math_operation(device, src, dst, scalar, "(x != y ? 1.0f : 0.0f)");
 }
 

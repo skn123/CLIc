@@ -83,7 +83,7 @@ public:
    * @param new_width new width of the array
    * @param new_height new height of the array
    * @param new_depth new depth of the array
-   * @param new_dimension new dimension of the array (1, 2 or 3)
+   * @param new_dimension new dimension of the array (1, 2 or 3). If 0, the current dimension is preserved.
    * @return Array::Pointer
    */
   auto
@@ -195,11 +195,11 @@ public:
   size() const -> size_t;
 
   /**
-   * @brief Get the total bitsize of the Array (number of elements * size of the data type)
+   * @brief Get the total number of bytes of the Array (number of elements * item size)
    * @return size_t
    */
   [[nodiscard]] auto
-  bitsize() const -> size_t;
+  nbytes() const -> size_t;
 
   /**
    * @brief Get the width of the Array

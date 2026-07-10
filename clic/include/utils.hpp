@@ -56,7 +56,7 @@ enum class dType
   INT = INT32,
   INDEX = UINT32,
   LABEL = UINT32,
-  BINARY = UINT8,
+  BOOL = UINT8,
 };
 
 /**
@@ -180,6 +180,58 @@ toBytes(const dType & dtype) -> size_t
   else
   {
     throw std::invalid_argument("Invalid Array::Type value");
+  }
+}
+
+/**
+ * @brief return the resulting cle::dType of an arithmetic operation between two
+ * types, following NumPy's type promotion rules. Because the backends do not
+ * support 64-bit integers nor double precision, cases that NumPy would promote
+ * to those fall back to FLOAT.
+ */
+inline auto
+promoteType(const dType & first, const dType & second) -> dType
+{
+  if (first == second)
+  {
+    return first;
+  }
+  if (first == dType::UNKNOWN || second == dType::UNKNOWN)
+  {
+    throw std::invalid_argument("Error: cannot promote an UNKNOWN dType.");
+  }
+  if (first == dType::COMPLEX || second == dType::COMPLEX)
+  {
+    return dType::COMPLEX;
+  }
+  if (first == dType::FLOAT || second == dType::FLOAT)
+  {
+    return dType::FLOAT;
+  }
+
+  auto         is_signed = [](const dType & d) { return d == dType::INT8 || d == dType::INT16 || d == dType::INT32; };
+  const size_t first_bytes = toBytes(first);
+  const size_t second_bytes = toBytes(second);
+
+  if (is_signed(first) == is_signed(second))
+  {
+    return (second_bytes > first_bytes) ? second : first;
+  }
+
+  const size_t signed_bytes = is_signed(first) ? first_bytes : second_bytes;
+  const size_t unsigned_bytes = is_signed(first) ? second_bytes : first_bytes;
+  if (signed_bytes > unsigned_bytes)
+  {
+    return is_signed(first) ? first : second;
+  }
+  switch (2 * unsigned_bytes)
+  {
+    case 2:
+      return dType::INT16;
+    case 4:
+      return dType::INT32;
+    default:
+      return dType::FLOAT;
   }
 }
 

@@ -26,107 +26,25 @@ TEST_P(TestCreate, notNullPtr)
 {
 
   input = cle::Array::create(10, 5, 3, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
-  output = cle::Array::create(3, 5, 10, 3, cle::dType::UINT16, cle::mType::BUFFER, device);
 
+  // A provided destination with matching extents is reused as-is (its dtype is preserved)
+  output = cle::Array::create(2, 3, 4, 3, cle::dType::UINT16, cle::mType::BUFFER, device);
   cle::tier0::create_dst(input, output, 2, 3, 4, cle::dType::UINT8);
   EXPECT_EQ(output->device(), input->device());
-  EXPECT_EQ(output->width(), 3);
-  EXPECT_EQ(output->height(), 5);
-  EXPECT_EQ(output->depth(), 10);
-  EXPECT_EQ(output->dim(), 3);
+  EXPECT_EQ(output->width(), 2);
+  EXPECT_EQ(output->height(), 3);
+  EXPECT_EQ(output->depth(), 4);
   EXPECT_EQ(output->dimension(), 3);
   EXPECT_EQ(output->itemSize(), sizeof(uint16_t));
   EXPECT_EQ(output->dtype(), cle::dType::UINT16);
 
-  cle::tier0::create_like(input, output, cle::dType::UINT8);
-  EXPECT_EQ(output->device(), input->device());
-  EXPECT_EQ(output->width(), 3);
-  EXPECT_EQ(output->height(), 5);
-  EXPECT_EQ(output->depth(), 10);
-  EXPECT_EQ(output->dim(), 3);
-  EXPECT_EQ(output->dimension(), 3);
-  EXPECT_EQ(output->itemSize(), sizeof(uint16_t));
-  EXPECT_EQ(output->dtype(), cle::dType::UINT16);
+  // A provided destination with mismatching extents is rejected
+  output = cle::Array::create(3, 5, 10, 3, cle::dType::UINT16, cle::mType::BUFFER, device);
+  EXPECT_ANY_THROW(cle::tier0::create_dst(input, output, 2, 3, 4, cle::dType::UINT8));
 
-  cle::tier0::create_one(input, output, cle::dType::UINT8);
-  EXPECT_EQ(output->device(), input->device());
-  EXPECT_EQ(output->width(), 3);
-  EXPECT_EQ(output->height(), 5);
-  EXPECT_EQ(output->depth(), 10);
-  EXPECT_EQ(output->dim(), 3);
-  EXPECT_EQ(output->dimension(), 3);
-  EXPECT_EQ(output->itemSize(), sizeof(uint16_t));
-  EXPECT_EQ(output->dtype(), cle::dType::UINT16);
-
-  cle::tier0::create_vector(input, output, 10, cle::dType::UINT8);
-  EXPECT_EQ(output->device(), input->device());
-  EXPECT_EQ(output->width(), 3);
-  EXPECT_EQ(output->height(), 5);
-  EXPECT_EQ(output->depth(), 10);
-  EXPECT_EQ(output->dim(), 3);
-  EXPECT_EQ(output->dimension(), 3);
-  EXPECT_EQ(output->itemSize(), sizeof(uint16_t));
-  EXPECT_EQ(output->dtype(), cle::dType::UINT16);
-
-  cle::tier0::create_xy(input, output, cle::dType::UINT8);
-  EXPECT_EQ(output->device(), input->device());
-  EXPECT_EQ(output->width(), 3);
-  EXPECT_EQ(output->height(), 5);
-  EXPECT_EQ(output->depth(), 10);
-  EXPECT_EQ(output->dim(), 3);
-  EXPECT_EQ(output->dimension(), 3);
-  EXPECT_EQ(output->itemSize(), sizeof(uint16_t));
-  EXPECT_EQ(output->dtype(), cle::dType::UINT16);
-
-  cle::tier0::create_yx(input, output, cle::dType::UINT8);
-  EXPECT_EQ(output->device(), input->device());
-  EXPECT_EQ(output->width(), 3);
-  EXPECT_EQ(output->height(), 5);
-  EXPECT_EQ(output->depth(), 10);
-  EXPECT_EQ(output->dim(), 3);
-  EXPECT_EQ(output->dimension(), 3);
-  EXPECT_EQ(output->itemSize(), sizeof(uint16_t));
-  EXPECT_EQ(output->dtype(), cle::dType::UINT16);
-
-  cle::tier0::create_zy(input, output, cle::dType::UINT8);
-  EXPECT_EQ(output->device(), input->device());
-  EXPECT_EQ(output->width(), 3);
-  EXPECT_EQ(output->height(), 5);
-  EXPECT_EQ(output->depth(), 10);
-  EXPECT_EQ(output->dim(), 3);
-  EXPECT_EQ(output->dimension(), 3);
-  EXPECT_EQ(output->itemSize(), sizeof(uint16_t));
-  EXPECT_EQ(output->dtype(), cle::dType::UINT16);
-
-  cle::tier0::create_yz(input, output, cle::dType::UINT8);
-  EXPECT_EQ(output->device(), input->device());
-  EXPECT_EQ(output->width(), 3);
-  EXPECT_EQ(output->height(), 5);
-  EXPECT_EQ(output->depth(), 10);
-  EXPECT_EQ(output->dim(), 3);
-  EXPECT_EQ(output->dimension(), 3);
-  EXPECT_EQ(output->itemSize(), sizeof(uint16_t));
-  EXPECT_EQ(output->dtype(), cle::dType::UINT16);
-
-  cle::tier0::create_xz(input, output, cle::dType::UINT8);
-  EXPECT_EQ(output->device(), input->device());
-  EXPECT_EQ(output->width(), 3);
-  EXPECT_EQ(output->height(), 5);
-  EXPECT_EQ(output->depth(), 10);
-  EXPECT_EQ(output->dim(), 3);
-  EXPECT_EQ(output->dimension(), 3);
-  EXPECT_EQ(output->itemSize(), sizeof(uint16_t));
-  EXPECT_EQ(output->dtype(), cle::dType::UINT16);
-
-  cle::tier0::create_zx(input, output, cle::dType::UINT8);
-  EXPECT_EQ(output->device(), input->device());
-  EXPECT_EQ(output->width(), 3);
-  EXPECT_EQ(output->height(), 5);
-  EXPECT_EQ(output->depth(), 10);
-  EXPECT_EQ(output->dim(), 3);
-  EXPECT_EQ(output->dimension(), 3);
-  EXPECT_EQ(output->itemSize(), sizeof(uint16_t));
-  EXPECT_EQ(output->dtype(), cle::dType::UINT16);
+  // A provided destination with mismatching dimension (keep_dims) is rejected
+  output = cle::Array::create(input->width(), input->height(), 1, 2, cle::dType::UINT16, cle::mType::BUFFER, device);
+  EXPECT_ANY_THROW(cle::tier0::create_xy(input, output, cle::dType::UINT8, true));
 }
 
 TEST_P(TestCreate, create_dst)

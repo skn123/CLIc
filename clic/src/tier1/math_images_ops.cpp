@@ -42,7 +42,7 @@ apply_images_math_operation(const Device::Pointer & device,
                             Array::Pointer          dst,
                             const std::string &     op_define) -> Array::Pointer
 {
-  tier0::create_like(src0, dst);
+  tier0::create_like(src0, dst, promoteType(src0->dtype(), src1->dtype()));
   const KernelInfo    kernel_info = { "image_operation", kernel_source };
   const ParameterList params = { { "src0", src0 }, { "src1", src1 }, { "dst", dst } };
   const RangeArray    range = { src0->width(), src0->height(), src0->depth() };

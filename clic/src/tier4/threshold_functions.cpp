@@ -18,7 +18,7 @@ auto
 threshold_mean_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
 {
   const float mean_intensity = tier3::mean_of_all_pixels_func(device, src);
-  tier0::create_like(src, dst, dType::BINARY);
+  tier0::create_like(src, dst, dType::BOOL);
   tier1::greater_constant_func(device, src, dst, mean_intensity);
   return dst;
 }
@@ -75,7 +75,7 @@ threshold_otsu_func(const Device::Pointer & device, const Array::Pointer & src, 
   double threshold = bin_centers[idx];
 
   // Create binary image with threshold
-  tier0::create_like(src, dst, dType::BINARY);
+  tier0::create_like(src, dst, dType::BOOL);
   tier1::greater_constant_func(device, src, dst, static_cast<float>(threshold));
   return dst;
 }
@@ -83,7 +83,7 @@ threshold_otsu_func(const Device::Pointer & device, const Array::Pointer & src, 
 auto
 threshold_yen_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
 {
-  tier0::create_like(src, dst, dType::BINARY);
+  tier0::create_like(src, dst, dType::BOOL);
 
   // Initialize histogram
   constexpr int bin = 256;

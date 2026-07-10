@@ -43,8 +43,8 @@ hessian_eigenvalues_func(const Device::Pointer & device,
 
 // inferior_superior(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
 // {
-//   tier0::create_like(src, dst, dType::BINARY);
-//   if (src->dtype() != dType::BINARY)
+//   tier0::create_like(src, dst, dType::BOOL);
+//   if (src->dtype() != dType::BOOL)
 //   {
 //     throw std::runtime_error("inferior_superior only supports BINARY (uint8) images");
 //   }

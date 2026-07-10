@@ -26,6 +26,8 @@ standard_deviation_partial_touching_area_matrix_func(const Device::Pointer & dev
   auto mean_touch_ratio_vector = tier1::reciprocal_func(device, touch_count_vector, nullptr);
 
   // we turn this vector into a matrix where only touching objects are set
+  // Array::Pointer mean_touching_matrix = nullptr;
+  // tier0::create_like(touching_matrix, mean_touching_matrix, dType::FLOAT);
   auto mean_touching_matrix = tier1::multiply_images_func(device, touching_matrix, mean_touch_ratio_vector, nullptr);
 
   // subtracting the mean touch portion from the touch portion gives us the deviation from the average

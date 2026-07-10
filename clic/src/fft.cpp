@@ -157,8 +157,8 @@ performFFT(const Array::Pointer & input, Array::Pointer output) -> Array::Pointe
   void * output_mem = output->get();
   void * input_mem = input->get();
 
-  auto output_size = static_cast<uint64_t>(output->bitsize());
-  auto input_size = static_cast<uint64_t>(input->bitsize());
+  auto output_size = static_cast<uint64_t>(output->nbytes());
+  auto input_size = static_cast<uint64_t>(input->nbytes());
   configuration.bufferSize = &output_size;
   configuration.inputBufferSize = &input_size;
   configuration.buffer = &output_mem;
@@ -177,8 +177,8 @@ performFFT(const Array::Pointer & input, Array::Pointer output) -> Array::Pointe
   auto output_mem = static_cast<cl_mem>(output->get());
   auto input_mem = static_cast<cl_mem>(input->get());
 
-  auto psize = static_cast<uint64_t>(output->bitsize());
-  auto psizein = static_cast<uint64_t>(input->bitsize());
+  auto psize = static_cast<uint64_t>(output->nbytes());
+  auto psizein = static_cast<uint64_t>(input->nbytes());
   configuration.bufferSize = &psize;
   configuration.inputBufferSize = &psizein;
   configuration.buffer = &output_mem;
@@ -193,8 +193,8 @@ performFFT(const Array::Pointer & input, Array::Pointer output) -> Array::Pointe
   void * output_mem = output->get();
   void * input_mem = input->get();
 
-  auto output_size = static_cast<uint64_t>(output->bitsize());
-  auto input_size = static_cast<uint64_t>(input->bitsize());
+  auto output_size = static_cast<uint64_t>(output->nbytes());
+  auto input_size = static_cast<uint64_t>(input->nbytes());
   configuration.device = static_cast<MTL::Device *>(metal_device->getMetalDevice());
   configuration.queue = static_cast<MTL::CommandQueue *>(metal_device->getMetalCommandQueue());
   configuration.buffer = reinterpret_cast<MTL::Buffer **>(&output_mem);
@@ -281,8 +281,8 @@ performIFFT(const Array::Pointer & input, const Array::Pointer & output) -> void
   void * input_mem = input->get();
   void * output_mem = output->get();
 
-  auto input_size = static_cast<uint64_t>(input->bitsize());
-  auto output_size = static_cast<uint64_t>(output->bitsize());
+  auto input_size = static_cast<uint64_t>(input->nbytes());
+  auto output_size = static_cast<uint64_t>(output->nbytes());
   configuration.bufferSize = &input_size;
   configuration.inputBufferSize = &output_size;
   configuration.buffer = &input_mem;
@@ -301,8 +301,8 @@ performIFFT(const Array::Pointer & input, const Array::Pointer & output) -> void
   auto input_mem = static_cast<cl_mem>(input->get());
   auto output_mem = static_cast<cl_mem>(output->get());
 
-  auto input_size = static_cast<uint64_t>(input->bitsize());
-  auto output_size = static_cast<uint64_t>(output->bitsize());
+  auto input_size = static_cast<uint64_t>(input->nbytes());
+  auto output_size = static_cast<uint64_t>(output->nbytes());
   configuration.bufferSize = &input_size;
   configuration.inputBufferSize = &output_size;
   configuration.buffer = &input_mem;
@@ -317,8 +317,8 @@ performIFFT(const Array::Pointer & input, const Array::Pointer & output) -> void
   void * input_mem = input->get();
   void * output_mem = output->get();
 
-  auto input_size = static_cast<uint64_t>(input->bitsize());
-  auto output_size = static_cast<uint64_t>(output->bitsize());
+  auto input_size = static_cast<uint64_t>(input->nbytes());
+  auto output_size = static_cast<uint64_t>(output->nbytes());
   configuration.device = static_cast<MTL::Device *>(metal_device->getMetalDevice());
   configuration.queue = static_cast<MTL::CommandQueue *>(metal_device->getMetalCommandQueue());
   configuration.buffer = reinterpret_cast<MTL::Buffer **>(&input_mem);
@@ -443,8 +443,8 @@ performDeconvolution(const Array::Pointer & observe,
   // variable before each VkFFTAppend to switch between estimate and reblurred
   // as the real-space input without reinitialising the app.
 
-  auto real_size = static_cast<uint64_t>(estimate->bitsize());
-  auto complex_size = static_cast<uint64_t>(fft_estimate->bitsize());
+  auto real_size = static_cast<uint64_t>(estimate->nbytes());
+  auto complex_size = static_cast<uint64_t>(fft_estimate->nbytes());
 
   VkFFTConfiguration fft_cfg{};
   configure(estimate, fft_cfg);
