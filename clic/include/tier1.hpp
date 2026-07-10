@@ -2218,7 +2218,44 @@ power_images_func(const Device::Pointer & device, const Array::Pointer & src0, c
 
 /**
  * @name range
- * @brief Crops an image according to a defined range and step size.
+ * @brief Read values from a strided region into a destination image in place, following the
+ * rule src[start + i * step] = dst[i] along each dimension. The destination image is not reallocated.
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src First input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param start_x Range starting value in x [int ( = None )]
+ * @param stop_x Range stop value in x [int ( = None )]
+ * @param step_x Range step value in x [int ( = None )]
+ * @param start_y Range starting value in y [int ( = None )]
+ * @param stop_y Range stop value in y [int ( = None )]
+ * @param step_y Range step value in y [int ( = None )]
+ * @param start_z Range starting value in z [int ( = None )]
+ * @param stop_z Range stop value in z [int ( = None )]
+ * @param step_z Range step value in z [int ( = None )]
+ * @return Array::Pointer
+ *
+ * @note 'transform', 'in assistant'
+ * @deprecated This function is deprecated. Consider using gather() instead.
+ */
+auto
+range_func(const Device::Pointer & device,
+           const Array::Pointer &  src,
+           Array::Pointer          dst,
+           int                     start_x,
+           int                     stop_x,
+           int                     step_x,
+           int                     start_y,
+           int                     stop_y,
+           int                     step_y,
+           int                     start_z,
+           int                     stop_z,
+           int                     step_z) -> Array::Pointer;
+
+/**
+ * @name gather
+ * @brief Read values from a strided region into a destination image in place, following the
+ * rule src[start + i * step] = dst[i] along each dimension. The destination image is not reallocated.
  *
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src First input image to process. [const Array::Pointer &]
@@ -2237,18 +2274,54 @@ power_images_func(const Device::Pointer & device, const Array::Pointer & src0, c
  * @note 'transform', 'in assistant'
  */
 auto
-range_func(const Device::Pointer & device,
-           const Array::Pointer &  src,
-           Array::Pointer          dst,
-           int                     start_x,
-           int                     stop_x,
-           int                     step_x,
-           int                     start_y,
-           int                     stop_y,
-           int                     step_y,
-           int                     start_z,
-           int                     stop_z,
-           int                     step_z) -> Array::Pointer;
+gather_func(const Device::Pointer & device,
+            const Array::Pointer &  src,
+            Array::Pointer          dst,
+            int                     start_x,
+            int                     stop_x,
+            int                     step_x,
+            int                     start_y,
+            int                     stop_y,
+            int                     step_y,
+            int                     start_z,
+            int                     stop_z,
+            int                     step_z) -> Array::Pointer;
+
+
+/**
+ * @name scatter
+ * @brief Writes a source image into a strided region of a destination image in place, following the
+ * rule dst[start + i * step] = src[i] along each dimension. The destination image is not reallocated.
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to scatter into dst. [const Array::Pointer &]
+ * @param dst Destination image written in place. [Array::Pointer]
+ * @param start_x Range starting value in x [int ( = None )]
+ * @param stop_x Range stop value in x [int ( = None )]
+ * @param step_x Range step value in x [int ( = None )]
+ * @param start_y Range starting value in y [int ( = None )]
+ * @param stop_y Range stop value in y [int ( = None )]
+ * @param step_y Range step value in y [int ( = None )]
+ * @param start_z Range starting value in z [int ( = None )]
+ * @param stop_z Range stop value in z [int ( = None )]
+ * @param step_z Range step value in z [int ( = None )]
+ * @return Array::Pointer
+ *
+ * @note 'transform', 'in assistant'
+ */
+auto
+scatter_func(const Device::Pointer & device,
+             const Array::Pointer &  src,
+             Array::Pointer          dst,
+             int                     start_x,
+             int                     stop_x,
+             int                     step_x,
+             int                     start_y,
+             int                     stop_y,
+             int                     step_y,
+             int                     start_z,
+             int                     stop_z,
+             int                     step_z) -> Array::Pointer;
 
 
 /**
