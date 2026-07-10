@@ -1330,7 +1330,7 @@ grayscale_dilate_func(const Device::Pointer & device,
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection'
@@ -1348,7 +1348,7 @@ maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer &
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection'
@@ -1366,7 +1366,7 @@ maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer &
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection', 'in assistant', 'bia-bob-suggestion'
@@ -1462,7 +1462,7 @@ mean_filter_func(const Device::Pointer & device,
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection'
@@ -1480,7 +1480,7 @@ mean_x_projection_func(const Device::Pointer & device, const Array::Pointer & sr
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection'
@@ -1498,7 +1498,7 @@ mean_y_projection_func(const Device::Pointer & device, const Array::Pointer & sr
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection', 'in assistant', 'bia-bob-suggestion'
@@ -1716,7 +1716,7 @@ minimum_images_func(const Device::Pointer & device, const Array::Pointer & src0,
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection'
@@ -1734,7 +1734,7 @@ minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer &
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection'
@@ -1752,7 +1752,7 @@ minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer &
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection', 'in assistant', 'bia-bob-suggestion'
@@ -2786,7 +2786,7 @@ square_root_func(const Device::Pointer & device, const Array::Pointer & src, Arr
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection'
@@ -2804,7 +2804,7 @@ std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection'
@@ -2822,7 +2822,7 @@ std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection', 'in assistant', 'bia-bob-suggestion'
@@ -2875,7 +2875,7 @@ sum_reduction_x_func(const Device::Pointer & device, const Array::Pointer & src,
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection'
@@ -2893,7 +2893,7 @@ sum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection'
@@ -2911,7 +2911,7 @@ sum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
- * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
  * @note 'projection', 'in assistant', 'bia-bob-suggestion'
