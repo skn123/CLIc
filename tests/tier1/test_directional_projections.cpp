@@ -34,9 +34,8 @@ TEST_P(TestDirectionalProjections, std_x_projection)
                                          0, 2, 0, 8, 0, 3, 0, 1, 0, 10, 0, 4, 0, 7, 0,  1, 0, 0, 0, 9,  5, 0, 6, 0, 10,
                                          0, 2, 0, 8, 0, 1, 0, 0, 0, 9,  0, 4, 0, 7, 0,  3, 0, 1, 0, 10, 5, 0, 6, 0, 10,
                                          1, 0, 0, 0, 9, 0, 4, 0, 7, 0,  3, 0, 1, 0, 10, 0, 2, 0, 8, 0,  5, 0, 6, 0, 10 };
-  // Output layout (depth, height, 1): transposed from original (1, height, depth)
-  std::array<float, 5 * 5 * 1> valid = { 3.94, 3.46, 3.46, 3.46, 3.94, 3.46, 3.94, 4.21, 3.94, 3.19, 4.21, 4.21, 3.19,
-                                         3.19, 4.21, 3.19, 3.19, 3.94, 4.21, 3.46, 4.27, 4.27, 4.27, 4.27, 4.27 };
+  std::array<float, 5 * 5 * 1> valid = { 3.52, 3.10, 3.76, 2.86, 3.82, 3.10, 3.52, 3.76, 2.86, 3.82, 3.10, 3.76, 2.86,
+                                         3.52, 3.82, 3.10, 3.52, 2.86, 3.76, 3.82, 3.52, 2.86, 3.76, 3.10, 3.82 };
 
   auto gpu_input = cle::Array::create(5, 5, 5, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
   gpu_input->writeFrom(input.data());
@@ -57,8 +56,8 @@ TEST_P(TestDirectionalProjections, std_y_projection)
                                          0, 2, 0, 8, 0, 3, 0, 1, 0, 10, 0, 4, 0, 7, 0,  1, 0, 0, 0, 9,  5, 0, 6, 0, 10,
                                          0, 2, 0, 8, 0, 1, 0, 0, 0, 9,  0, 4, 0, 7, 0,  3, 0, 1, 0, 10, 5, 0, 6, 0, 10,
                                          1, 0, 0, 0, 9, 0, 4, 0, 7, 0,  3, 0, 1, 0, 10, 0, 2, 0, 8, 0,  5, 0, 6, 0, 10 };
-  std::array<float, 5 * 5 * 1> valid = { 2.17, 1.79, 2.61, 4.12, 5.31, 2.17, 1.79, 2.61, 4.12, 5.31, 2.17, 1.79, 2.61,
-                                         4.12, 5.31, 2.17, 1.79, 2.61, 4.12, 5.31, 2.17, 1.79, 2.61, 4.12, 5.31 };
+  std::array<float, 5 * 5 * 1> valid = { 1.94, 1.60, 2.33, 3.69, 4.75, 1.94, 1.60, 2.33, 3.69, 4.75, 1.94, 1.60, 2.33,
+                                         3.69, 4.75, 1.94, 1.60, 2.33, 3.69, 4.75, 1.94, 1.60, 2.33, 3.69, 4.75 };
 
   auto gpu_input = cle::Array::create(5, 5, 5, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
   gpu_input->writeFrom(input.data());
@@ -79,8 +78,8 @@ TEST_P(TestDirectionalProjections, std_z_projection)
                                          0, 2, 0, 8, 0, 3, 0, 1, 0, 10, 0, 4, 0, 7, 0,  1, 0, 0, 0, 9,  5, 0, 6, 0, 10,
                                          0, 2, 0, 8, 0, 1, 0, 0, 0, 9,  0, 4, 0, 7, 0,  3, 0, 1, 0, 10, 5, 0, 6, 0, 10,
                                          1, 0, 0, 0, 9, 0, 4, 0, 7, 0,  3, 0, 1, 0, 10, 0, 2, 0, 8, 0,  5, 0, 6, 0, 10 };
-  std::array<float, 5 * 5 * 1> valid = { 0.55, 1.10, 0,    4.38, 4.93, 1.22, 1.79, 0.45, 4.12, 5.13, 1.64, 2.19, 0.55,
-                                         3.83, 5.48, 1.30, 2,    0.45, 4.03, 5.22, 0,    0,    0,    0,    0 };
+  std::array<float, 5 * 5 * 1> valid = { 0.49, 0.98, 0,    3.92, 4.41, 1.10, 1.60, 0.40, 3.69, 4.59, 1.47, 1.96, 0.49,
+                                         3.43, 4.90, 1.17, 1.79, 0.40, 3.61, 4.66, 0,    0,    0,    0,    0 };
 
   auto gpu_input = cle::Array::create(5, 5, 5, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
   gpu_input->writeFrom(input.data());
@@ -387,6 +386,42 @@ TEST_P(TestDirectionalProjections, sum_z_projection)
   {
     EXPECT_EQ(output[i], valid[i]);
   }
+}
+
+TEST_P(TestDirectionalProjections, keep_dims_y_projection)
+{
+  auto gpu_input = cle::Array::create(4, 3, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->fill(1);
+
+  auto gpu_output = cle::tier1::sum_y_projection_func(device, gpu_input, nullptr, true);
+  EXPECT_EQ(gpu_output->width(), 4);
+  EXPECT_EQ(gpu_output->height(), 1);
+  EXPECT_EQ(gpu_output->depth(), 2);
+  EXPECT_EQ(gpu_output->dimension(), 3);
+}
+
+TEST_P(TestDirectionalProjections, keep_dims_z_projection)
+{
+  auto gpu_input = cle::Array::create(4, 3, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->fill(1);
+
+  auto gpu_output = cle::tier1::sum_z_projection_func(device, gpu_input, nullptr, true);
+  EXPECT_EQ(gpu_output->width(), 4);
+  EXPECT_EQ(gpu_output->height(), 3);
+  EXPECT_EQ(gpu_output->depth(), 1);
+  EXPECT_EQ(gpu_output->dimension(), 3);
+}
+
+TEST_P(TestDirectionalProjections, keep_dims_position_y_projection)
+{
+  auto gpu_input = cle::Array::create(4, 3, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->fill(1);
+
+  auto gpu_output = cle::tier1::y_position_of_maximum_y_projection_func(device, gpu_input, nullptr, true);
+  EXPECT_EQ(gpu_output->width(), 4);
+  EXPECT_EQ(gpu_output->height(), 1);
+  EXPECT_EQ(gpu_output->depth(), 2);
+  EXPECT_EQ(gpu_output->dimension(), 3);
 }
 
 INSTANTIATE_TEST_SUITE_P(InstantiationName, TestDirectionalProjections, ::testing::ValuesIn(getParameters()));
