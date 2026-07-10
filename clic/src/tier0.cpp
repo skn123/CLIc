@@ -42,15 +42,14 @@ check_dst_shape(const Array::Pointer & dst, size_t width, size_t height, size_t 
 {
   if (dst->width() != width || dst->height() != height || dst->depth() != depth)
   {
-    throw std::invalid_argument("Error: provided 'dst' extents (" + std::to_string(dst->width()) + "," +
-                                std::to_string(dst->height()) + "," + std::to_string(dst->depth()) +
-                                ") do not match the expected (" + std::to_string(width) + "," + std::to_string(height) +
-                                "," + std::to_string(depth) + ").");
+    throw std::invalid_argument("Error: provided 'dst' extents (" + std::to_string(dst->width()) + "," + std::to_string(dst->height()) +
+                                "," + std::to_string(dst->depth()) + ") do not match the expected (" + std::to_string(width) + "," +
+                                std::to_string(height) + "," + std::to_string(depth) + ").");
   }
   if (dimension != 0 && dst->dimension() != dimension)
   {
-    throw std::invalid_argument("Error: provided 'dst' dimension (" + std::to_string(dst->dimension()) +
-                                ") does not match the expected (" + std::to_string(dimension) + ").");
+    throw std::invalid_argument("Error: provided 'dst' dimension (" + std::to_string(dst->dimension()) + ") does not match the expected (" +
+                                std::to_string(dimension) + ").");
   }
 }
 
@@ -66,13 +65,7 @@ check_dst_shape(const Array::Pointer & dst, size_t width, size_t height, size_t 
  * @return void
  */
 auto
-create_dst(const Array::Pointer & src,
-           Array::Pointer &      dst,
-           size_t                width,
-           size_t                height,
-           size_t                depth,
-           dType                 type,
-           bool                  keep_dims) -> void
+create_dst(const Array::Pointer & src, Array::Pointer & dst, size_t width, size_t height, size_t depth, dType type, bool keep_dims) -> void
 {
   if (check_and_set(src, dst, type))
   {

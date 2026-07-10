@@ -25,12 +25,12 @@ namespace cle::tier0
  */
 auto
 create_dst(const Array::Pointer & src,
-           Array::Pointer &      dst,
-           size_t                width,
-           size_t                height,
-           size_t                depth,
-           dType                 type = dType::UNKNOWN,
-           bool                  keep_dims = false) -> void;
+           Array::Pointer &       dst,
+           size_t                 width,
+           size_t                 height,
+           size_t                 depth,
+           dType                  type = dType::UNKNOWN,
+           bool                   keep_dims = false) -> void;
 
 /**
  * @brief Manage the creation of a destination array similar to the source array if it does not exist already.
