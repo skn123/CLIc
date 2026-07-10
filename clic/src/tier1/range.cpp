@@ -10,17 +10,17 @@ namespace cle::tier1
 
 auto
 gather_func(const Device::Pointer & device,
-           const Array::Pointer &  src,
-           Array::Pointer          dst,
-           int                     start_x,
-           int                     stop_x,
-           int                     step_x,
-           int                     start_y,
-           int                     stop_y,
-           int                     step_y,
-           int                     start_z,
-           int                     stop_z,
-           int                     step_z) -> Array::Pointer
+            const Array::Pointer &  src,
+            Array::Pointer          dst,
+            int                     start_x,
+            int                     stop_x,
+            int                     step_x,
+            int                     start_y,
+            int                     stop_y,
+            int                     step_y,
+            int                     start_z,
+            int                     stop_z,
+            int                     step_z) -> Array::Pointer
 {
   const size_t range_width = std::max<size_t>(abs(stop_x - start_x) / std::max(std::abs(step_x), 1), 1);
   const size_t range_height = std::max<size_t>(abs(stop_y - start_y) / std::max(std::abs(step_y), 1), 1);
@@ -56,8 +56,8 @@ range_func(const Device::Pointer & device,
            int                     start_z,
            int                     stop_z,
            int                     step_z) -> Array::Pointer
-  {
-    return gather_func(device, src, dst, start_x, stop_x, step_x, start_y, stop_y, step_y, start_z, stop_z, step_z);
+{
+  return gather_func(device, src, dst, start_x, stop_x, step_x, start_y, stop_y, step_y, start_z, stop_z, step_z);
 }
 
 namespace

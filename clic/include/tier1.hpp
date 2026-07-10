@@ -2275,17 +2275,17 @@ range_func(const Device::Pointer & device,
  */
 auto
 gather_func(const Device::Pointer & device,
-           const Array::Pointer &  src,
-           Array::Pointer          dst,
-           int                     start_x,
-           int                     stop_x,
-           int                     step_x,
-           int                     start_y,
-           int                     stop_y,
-           int                     step_y,
-           int                     start_z,
-           int                     stop_z,
-           int                     step_z) -> Array::Pointer;
+            const Array::Pointer &  src,
+            Array::Pointer          dst,
+            int                     start_x,
+            int                     stop_x,
+            int                     step_x,
+            int                     start_y,
+            int                     stop_y,
+            int                     step_y,
+            int                     start_z,
+            int                     stop_z,
+            int                     step_z) -> Array::Pointer;
 
 
 /**
