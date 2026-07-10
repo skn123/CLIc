@@ -17,7 +17,7 @@ maximum_of_all_pixels_func(const Device::Pointer & device, const Array::Pointer 
   auto project_if_needed = [&](auto projection_func, int dimension) {
     if (dimension > 1)
     {
-      tmp = projection_func(device, tmp, nullptr);
+      tmp = projection_func(device, tmp, nullptr, false);
     }
   };
 
@@ -40,7 +40,7 @@ minimum_of_all_pixels_func(const Device::Pointer & device, const Array::Pointer 
   auto project_if_needed = [&](auto projection_func, int dimension) {
     if (dimension > 1)
     {
-      tmp = projection_func(device, tmp, nullptr);
+      tmp = projection_func(device, tmp, nullptr, false);
     }
   };
 

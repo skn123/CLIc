@@ -17,8 +17,6 @@ proximal_neighbor_count_func(const Device::Pointer & device,
                              float                   min_distance,
                              float                   max_distance) -> Array::Pointer
 {
-  tier0::create_like(src, dst, dType::UINT32);
-
   min_distance = std::max(min_distance, 0.0f);
   max_distance = (max_distance < 0) ? std::numeric_limits<float>::max() : max_distance;
 
@@ -26,7 +24,7 @@ proximal_neighbor_count_func(const Device::Pointer & device,
   auto distance_matrix = tier1::generate_distance_matrix_func(device, pointlist, pointlist, nullptr);
   auto touch_matrix = tier2::generate_proximal_neighbors_matrix_func(device, distance_matrix, nullptr, min_distance, max_distance);
 
-  tier2::count_touching_neighbors_func(device, touch_matrix, dst, false);
+  dst = tier2::count_touching_neighbors_func(device, touch_matrix, dst, false);
   tier1::set_column_func(device, dst, 0, 0);
 
   return dst;

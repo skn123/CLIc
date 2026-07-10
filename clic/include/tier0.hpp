@@ -20,10 +20,17 @@ namespace cle::tier0
  * @param height Height of the destination array
  * @param depth Depth of the destination array
  * @param type Data type of the destination array (optional)
+ * @param keep_dims If true, the destination keeps the dimension of the source instead of inferring it from the extents
+ * (optional)
  */
 auto
-create_dst(const Array::Pointer & src, Array::Pointer & dst, size_t width, size_t height, size_t depth, dType type = dType::UNKNOWN)
-  -> void;
+create_dst(const Array::Pointer & src,
+           Array::Pointer &      dst,
+           size_t                width,
+           size_t                height,
+           size_t                depth,
+           dType                 type = dType::UNKNOWN,
+           bool                  keep_dims = false) -> void;
 
 /**
  * @brief Manage the creation of a destination array similar to the source array if it does not exist already.
@@ -58,54 +65,66 @@ create_vector(const Array::Pointer & src, Array::Pointer & dst, const size_t & s
  * @param src Source array
  * @param dst Destination array
  * @param type Data type of the destination array (optional)
+ * @param keep_dims If true, the destination keeps the dimension of the source instead of inferring it from the extents
+ * (optional)
  */
 auto
-create_xy(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN) -> void;
+create_xy(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN, bool keep_dims = false) -> void;
 
 /**
  * @brief Manage the creation of a destination array from YX transposed source it does not exist already.
  * @param src Source array
  * @param dst Destination array
  * @param type Data type of the destination array (optional)
+ * @param keep_dims If true, the destination keeps the dimension of the source instead of inferring it from the extents
+ * (optional)
  */
 auto
-create_yx(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN) -> void;
+create_yx(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN, bool keep_dims = false) -> void;
 
 /**
  * @brief Manage the creation of a destination array from ZY transposed source it does not exist already.
  * @param src Source array
  * @param dst Destination array
  * @param type Data type of the destination array (optional)
+ * @param keep_dims If true, the destination keeps the dimension of the source instead of inferring it from the extents
+ * (optional)
  */
 auto
-create_zy(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN) -> void;
+create_zy(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN, bool keep_dims = false) -> void;
 
 /**
  * @brief Manage the creation of a destination array from YZ transposed source it does not exist already.
  * @param src Source array
  * @param dst Destination array
  * @param type Data type of the destination array (optional)
+ * @param keep_dims If true, the destination keeps the dimension of the source instead of inferring it from the extents
+ * (optional)
  */
 auto
-create_yz(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN) -> void;
+create_yz(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN, bool keep_dims = false) -> void;
 
 /**
  * @brief Manage the creation of a destination array from XZ transposed source it does not exist already.
  * @param src Source array
  * @param dst Destination array
  * @param type Data type of the destination array (optional)
+ * @param keep_dims If true, the destination keeps the dimension of the source instead of inferring it from the extents
+ * (optional)
  */
 auto
-create_xz(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN) -> void;
+create_xz(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN, bool keep_dims = false) -> void;
 
 /**
  * @brief Manage the creation of a destination array from ZX transposed source it does not exist already.
  * @param src Source array
  * @param dst Destination array
  * @param type Data type of the destination array (optional)
+ * @param keep_dims If true, the destination keeps the dimension of the source instead of inferring it from the extents
+ * (optional)
  */
 auto
-create_zx(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN) -> void;
+create_zx(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN, bool keep_dims = false) -> void;
 
 
 } // namespace cle::tier0

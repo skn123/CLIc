@@ -76,9 +76,9 @@ namespace cle::tier1
 {
 
 auto
-std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_zy(src, dst, dType::FLOAT);
+  tier0::create_zy(src, dst, dType::FLOAT, keep_dims);
   const KernelInfo    kernel = { "std_projection", kernel::std_projection_kernel };
   const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 0 } };
   const RangeArray    range = { dst->width(), dst->height(), 1 };
@@ -87,9 +87,9 @@ std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src
 }
 
 auto
-std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xz(src, dst, dType::FLOAT);
+  tier0::create_xz(src, dst, dType::FLOAT, keep_dims);
   const KernelInfo    kernel = { "std_projection", kernel::std_projection_kernel };
   const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 1 } };
   const RangeArray    range = { dst->width(), dst->height(), 1 };
@@ -98,9 +98,9 @@ std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src
 }
 
 auto
-std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xy(src, dst, dType::FLOAT);
+  tier0::create_xy(src, dst, dType::FLOAT, keep_dims);
   const KernelInfo    kernel = { "std_projection", kernel::std_projection_kernel };
   const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 2 } };
   const RangeArray    range = { dst->width(), dst->height(), 1 };
@@ -109,9 +109,9 @@ std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src
 }
 
 auto
-maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_zy(src, dst);
+  tier0::create_zy(src, dst, dType::UNKNOWN, keep_dims);
   const KernelInfo    kernel = { "maximum_projection", kernel::maximum_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
@@ -122,9 +122,9 @@ maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer &
 }
 
 auto
-maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xz(src, dst);
+  tier0::create_xz(src, dst, dType::UNKNOWN, keep_dims);
   const KernelInfo    kernel = { "maximum_projection", kernel::maximum_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
@@ -135,9 +135,9 @@ maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer &
 }
 
 auto
-maximum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+maximum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xy(src, dst);
+  tier0::create_xy(src, dst, dType::UNKNOWN, keep_dims);
   const KernelInfo    kernel = { "maximum_projection", kernel::maximum_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
@@ -148,9 +148,9 @@ maximum_z_projection_func(const Device::Pointer & device, const Array::Pointer &
 }
 
 auto
-mean_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+mean_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_zy(src, dst);
+  tier0::create_zy(src, dst, dType::UNKNOWN, keep_dims);
   const KernelInfo    kernel = { "mean_projection", kernel::mean_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
@@ -161,9 +161,9 @@ mean_x_projection_func(const Device::Pointer & device, const Array::Pointer & sr
 }
 
 auto
-mean_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+mean_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xz(src, dst);
+  tier0::create_xz(src, dst, dType::UNKNOWN, keep_dims);
   const KernelInfo    kernel = { "mean_projection", kernel::mean_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
@@ -174,9 +174,9 @@ mean_y_projection_func(const Device::Pointer & device, const Array::Pointer & sr
 }
 
 auto
-mean_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+mean_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xy(src, dst);
+  tier0::create_xy(src, dst, dType::UNKNOWN, keep_dims);
   const KernelInfo    kernel = { "mean_projection", kernel::mean_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
@@ -187,9 +187,9 @@ mean_z_projection_func(const Device::Pointer & device, const Array::Pointer & sr
 }
 
 auto
-minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_zy(src, dst);
+  tier0::create_zy(src, dst, dType::UNKNOWN, keep_dims);
   const KernelInfo    kernel = { "minimum_projection", kernel::minimum_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
@@ -199,9 +199,9 @@ minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer &
   return dst;
 }
 auto
-minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xz(src, dst);
+  tier0::create_xz(src, dst, dType::UNKNOWN, keep_dims);
   const KernelInfo    kernel = { "minimum_projection", kernel::minimum_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
@@ -212,9 +212,9 @@ minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer &
 }
 
 auto
-minimum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+minimum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xy(src, dst);
+  tier0::create_xy(src, dst, dType::UNKNOWN, keep_dims);
   const KernelInfo    kernel = { "minimum_projection", kernel::minimum_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
@@ -225,9 +225,9 @@ minimum_z_projection_func(const Device::Pointer & device, const Array::Pointer &
 }
 
 auto
-sum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+sum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_zy(src, dst, dType::FLOAT);
+  tier0::create_zy(src, dst, dType::FLOAT, keep_dims);
   const KernelInfo    kernel = { "sum_projection", kernel::sum_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
@@ -238,9 +238,9 @@ sum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src
 }
 
 auto
-sum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+sum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xz(src, dst, dType::FLOAT);
+  tier0::create_xz(src, dst, dType::FLOAT, keep_dims);
   const KernelInfo    kernel = { "sum_projection", kernel::sum_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
@@ -251,9 +251,9 @@ sum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src
 }
 
 auto
-sum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer
+sum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xy(src, dst, dType::FLOAT);
+  tier0::create_xy(src, dst, dType::FLOAT, keep_dims);
   const KernelInfo    kernel = { "sum_projection", kernel::sum_projection };
   const ParameterList params = { { "src", src }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };

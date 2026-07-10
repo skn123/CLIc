@@ -87,14 +87,14 @@ Array::create(const Array::Pointer & array) -> Array::Pointer
 auto
 Array::reshape(size_t new_width, size_t new_height, size_t new_depth, size_t new_dimension) const -> Array::Pointer
 {
-  if (new_dimension == 0)
-  {
-    new_dimension = (this->depth() > 1) ? 3 : (this->height() > 1) ? 2 : 1;
-  }
   if (new_width * new_height * new_depth != this->size())
   {
     throw std::invalid_argument("Error: Array reshape size mismatch. Original size: " + std::to_string(this->size()) +
                                 ", new size: " + std::to_string(new_width * new_height * new_depth));
+  }
+  if (new_dimension == 0)
+  {
+    new_dimension = this->dimension();
   }
   auto ptr = std::shared_ptr<Array>(
     new Array(new_width, new_height, new_depth, new_dimension, this->dtype(), this->mtype(), this->get_ptr(), this->device()));
@@ -357,8 +357,9 @@ Array::size() const -> size_t
 {
   return width_ * height_ * depth_;
 }
+
 auto
-Array::bitsize() const -> size_t
+Array::nbytes() const -> size_t
 {
   return size() * itemSize();
 }

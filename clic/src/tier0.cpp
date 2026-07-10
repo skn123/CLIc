@@ -29,6 +29,32 @@ check_and_set(const Array::Pointer & src, Array::Pointer & dst, dType & type) ->
 }
 
 /**
+ * @brief Validate a user-provided destination array against the expected extents and dimension
+ * @param dst destination array pointer (assumed non-null)
+ * @param width expected width
+ * @param height expected height
+ * @param depth expected depth
+ * @param dimension expected dimension (0 to skip the dimension check)
+ * @return void
+ */
+static auto
+check_dst_shape(const Array::Pointer & dst, size_t width, size_t height, size_t depth, size_t dimension = 0) -> void
+{
+  if (dst->width() != width || dst->height() != height || dst->depth() != depth)
+  {
+    throw std::invalid_argument("Error: provided 'dst' extents (" + std::to_string(dst->width()) + "," +
+                                std::to_string(dst->height()) + "," + std::to_string(dst->depth()) +
+                                ") do not match the expected (" + std::to_string(width) + "," + std::to_string(height) +
+                                "," + std::to_string(depth) + ").");
+  }
+  if (dimension != 0 && dst->dimension() != dimension)
+  {
+    throw std::invalid_argument("Error: provided 'dst' dimension (" + std::to_string(dst->dimension()) +
+                                ") does not match the expected (" + std::to_string(dimension) + ").");
+  }
+}
+
+/**
  * @brief Create a destination array with the provided parameters
  * @param src source array pointer
  * @param dst destination array pointer
@@ -36,16 +62,24 @@ check_and_set(const Array::Pointer & src, Array::Pointer & dst, dType & type) ->
  * @param height height of the array
  * @param depth depth of the array
  * @param type data type
+ * @param keep_dims keep the source dimension instead of inferring it from the extents
  * @return void
  */
 auto
-create_dst(const Array::Pointer & src, Array::Pointer & dst, size_t width, size_t height, size_t depth, dType type) -> void
+create_dst(const Array::Pointer & src,
+           Array::Pointer &      dst,
+           size_t                width,
+           size_t                height,
+           size_t                depth,
+           dType                 type,
+           bool                  keep_dims) -> void
 {
   if (check_and_set(src, dst, type))
   {
+    check_dst_shape(dst, width, height, depth, keep_dims ? src->dimension() : 0);
     return;
   }
-  auto dim = shape_to_dimension(width, height, depth);
+  auto dim = keep_dims ? src->dimension() : shape_to_dimension(width, height, depth);
   dst = Array::create(width, height, depth, dim, type, src->mtype(), src->device());
 }
 
@@ -106,16 +140,18 @@ create_vector(const Array::Pointer & src, Array::Pointer & dst, const size_t & s
  * @param src source array pointer
  * @param dst destination array pointer
  * @param type data type
+ * @param keep_dims keep the source dimension instead of inferring it from the extents
  * @return void
  */
 auto
-create_xy(const Array::Pointer & src, Array::Pointer & dst, dType type) -> void
+create_xy(const Array::Pointer & src, Array::Pointer & dst, dType type, bool keep_dims) -> void
 {
   if (check_and_set(src, dst, type))
   {
+    check_dst_shape(dst, src->width(), src->height(), 1, keep_dims ? src->dimension() : 0);
     return;
   }
-  auto dim = shape_to_dimension(src->width(), src->height(), 1);
+  auto dim = keep_dims ? src->dimension() : shape_to_dimension(src->width(), src->height(), 1);
   dst = Array::create(src->width(), src->height(), 1, dim, type, src->mtype(), src->device());
 }
 
@@ -124,16 +160,18 @@ create_xy(const Array::Pointer & src, Array::Pointer & dst, dType type) -> void
  * @param src source array pointer
  * @param dst destination array pointer
  * @param type data type
+ * @param keep_dims keep the source dimension instead of inferring it from the extents
  * @return void
  */
 auto
-create_yx(const Array::Pointer & src, Array::Pointer & dst, dType type) -> void
+create_yx(const Array::Pointer & src, Array::Pointer & dst, dType type, bool keep_dims) -> void
 {
   if (check_and_set(src, dst, type))
   {
+    check_dst_shape(dst, src->height(), src->width(), 1, keep_dims ? src->dimension() : 0);
     return;
   }
-  auto dim = shape_to_dimension(src->height(), src->width(), 1);
+  auto dim = keep_dims ? src->dimension() : shape_to_dimension(src->height(), src->width(), 1);
   dst = Array::create(src->height(), src->width(), 1, dim, type, src->mtype(), src->device());
 }
 
@@ -142,16 +180,18 @@ create_yx(const Array::Pointer & src, Array::Pointer & dst, dType type) -> void
  * @param src source array pointer
  * @param dst destination array pointer
  * @param type data type
+ * @param keep_dims keep the source dimension instead of inferring it from the extents
  * @return void
  */
 auto
-create_zy(const Array::Pointer & src, Array::Pointer & dst, dType type) -> void
+create_zy(const Array::Pointer & src, Array::Pointer & dst, dType type, bool keep_dims) -> void
 {
   if (check_and_set(src, dst, type))
   {
+    check_dst_shape(dst, src->depth(), src->height(), 1, keep_dims ? src->dimension() : 0);
     return;
   }
-  auto dim = shape_to_dimension(src->depth(), src->height(), 1);
+  auto dim = keep_dims ? src->dimension() : shape_to_dimension(src->depth(), src->height(), 1);
   dst = Array::create(src->depth(), src->height(), 1, dim, type, src->mtype(), src->device());
 }
 
@@ -160,16 +200,18 @@ create_zy(const Array::Pointer & src, Array::Pointer & dst, dType type) -> void
  * @param src source array pointer
  * @param dst destination array pointer
  * @param type data type
+ * @param keep_dims keep the source dimension instead of inferring it from the extents
  * @return void
  */
 auto
-create_yz(const Array::Pointer & src, Array::Pointer & dst, dType type) -> void
+create_yz(const Array::Pointer & src, Array::Pointer & dst, dType type, bool keep_dims) -> void
 {
   if (check_and_set(src, dst, type))
   {
+    check_dst_shape(dst, src->height(), src->depth(), 1, keep_dims ? src->dimension() : 0);
     return;
   }
-  auto dim = shape_to_dimension(src->height(), src->depth(), 1);
+  auto dim = keep_dims ? src->dimension() : shape_to_dimension(src->height(), src->depth(), 1);
   dst = Array::create(src->height(), src->depth(), 1, dim, type, src->mtype(), src->device());
 }
 
@@ -178,16 +220,18 @@ create_yz(const Array::Pointer & src, Array::Pointer & dst, dType type) -> void
  * @param src source array pointer
  * @param dst destination array pointer
  * @param type data type
+ * @param keep_dims keep the source dimension instead of inferring it from the extents
  * @return void
  */
 auto
-create_xz(const Array::Pointer & src, Array::Pointer & dst, dType type) -> void
+create_xz(const Array::Pointer & src, Array::Pointer & dst, dType type, bool keep_dims) -> void
 {
   if (check_and_set(src, dst, type))
   {
+    check_dst_shape(dst, src->width(), src->depth(), 1, keep_dims ? src->dimension() : 0);
     return;
   }
-  auto dim = shape_to_dimension(src->width(), src->depth(), 1);
+  auto dim = keep_dims ? src->dimension() : shape_to_dimension(src->width(), src->depth(), 1);
   dst = Array::create(src->width(), src->depth(), 1, dim, type, src->mtype(), src->device());
 }
 
@@ -196,16 +240,18 @@ create_xz(const Array::Pointer & src, Array::Pointer & dst, dType type) -> void
  * @param src source array pointer
  * @param dst destination array pointer
  * @param type data type
+ * @param keep_dims keep the source dimension instead of inferring it from the extents
  * @return void
  */
 auto
-create_zx(const Array::Pointer & src, Array::Pointer & dst, dType type) -> void
+create_zx(const Array::Pointer & src, Array::Pointer & dst, dType type, bool keep_dims) -> void
 {
   if (check_and_set(src, dst, type))
   {
+    check_dst_shape(dst, src->depth(), src->width(), 1, keep_dims ? src->dimension() : 0);
     return;
   }
-  auto dim = shape_to_dimension(src->depth(), src->width(), 1);
+  auto dim = keep_dims ? src->dimension() : shape_to_dimension(src->depth(), src->width(), 1);
   dst = Array::create(src->depth(), src->width(), 1, dim, type, src->mtype(), src->device());
 }
 

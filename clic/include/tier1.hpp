@@ -1330,13 +1330,15 @@ grayscale_dilate_func(const Device::Pointer & device,
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection'
  * @see https://clij.github.io/clij2-docs/reference_maximumXProjection
  */
 auto
-maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -1346,13 +1348,15 @@ maximum_x_projection_func(const Device::Pointer & device, const Array::Pointer &
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection'
  * @see https://clij.github.io/clij2-docs/reference_maximumYProjection
  */
 auto
-maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -1362,13 +1366,15 @@ maximum_y_projection_func(const Device::Pointer & device, const Array::Pointer &
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection', 'in assistant', 'bia-bob-suggestion'
  * @see https://clij.github.io/clij2-docs/reference_maximumZProjection
  */
 auto
-maximum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+maximum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -1456,13 +1462,15 @@ mean_filter_func(const Device::Pointer & device,
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection'
  * @see https://clij.github.io/clij2-docs/reference_meanXProjection
  */
 auto
-mean_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+mean_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -1472,13 +1480,15 @@ mean_x_projection_func(const Device::Pointer & device, const Array::Pointer & sr
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection'
  * @see https://clij.github.io/clij2-docs/reference_meanYProjection
  */
 auto
-mean_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+mean_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -1488,13 +1498,15 @@ mean_y_projection_func(const Device::Pointer & device, const Array::Pointer & sr
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection', 'in assistant', 'bia-bob-suggestion'
  * @see https://clij.github.io/clij2-docs/reference_meanZProjection
  */
 auto
-mean_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+mean_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -1704,13 +1716,15 @@ minimum_images_func(const Device::Pointer & device, const Array::Pointer & src0,
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection'
  * @see https://clij.github.io/clij2-docs/reference_minimumXProjection
  */
 auto
-minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -1720,13 +1734,15 @@ minimum_x_projection_func(const Device::Pointer & device, const Array::Pointer &
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection'
  * @see https://clij.github.io/clij2-docs/reference_minimumYProjection
  */
 auto
-minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -1736,13 +1752,15 @@ minimum_y_projection_func(const Device::Pointer & device, const Array::Pointer &
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection', 'in assistant', 'bia-bob-suggestion'
  * @see https://clij.github.io/clij2-docs/reference_minimumZProjection
  */
 auto
-minimum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+minimum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 auto
@@ -2768,13 +2786,15 @@ square_root_func(const Device::Pointer & device, const Array::Pointer & src, Arr
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection'
  * @see https://clij.github.io/clij2-docs/reference_standardDeviationXProjection
  */
 auto
-std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -2784,13 +2804,15 @@ std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection'
  * @see https://clij.github.io/clij2-docs/reference_standardDeviationYProjection
  */
 auto
-std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -2800,13 +2822,15 @@ std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection', 'in assistant', 'bia-bob-suggestion'
  * @see https://clij.github.io/clij2-docs/reference_standardDeviationZProjection
  */
 auto
-std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -2851,13 +2875,15 @@ sum_reduction_x_func(const Device::Pointer & device, const Array::Pointer & src,
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection'
  * @see https://clij.github.io/clij2-docs/reference_sumXProjection
  */
 auto
-sum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+sum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -2867,13 +2893,15 @@ sum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection'
  * @see https://clij.github.io/clij2-docs/reference_sumYProjection
  */
 auto
-sum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+sum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
@@ -2883,13 +2911,15 @@ sum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = false )]
  * @return Array::Pointer
  *
  * @note 'projection', 'in assistant', 'bia-bob-suggestion'
  * @see https://clij.github.io/clij2-docs/reference_sumZProjection
  */
 auto
-sum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst) -> Array::Pointer;
+sum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
 
 
 /**
