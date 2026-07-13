@@ -1030,6 +1030,20 @@ sum_of_all_pixels_func(const Device::Pointer & device, const Array::Pointer & sr
 
 
 /**
+ * @name product_of_all_pixels
+ * @brief Determines the product of all pixels in a given image.
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer & ( = None )]
+ * @return float
+ *
+ * @note 'combine'
+ */
+auto
+product_of_all_pixels_func(const Device::Pointer & device, const Array::Pointer & src) -> float;
+
+
+/**
  * @name top_hat_box
  * @brief Applies a top-hat filter for background subtraction to the input image.
  *

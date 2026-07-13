@@ -64,6 +64,38 @@ __kernel void std_projection(
 }
 )CLC";
 
+// Generalized product projection kernel for any axis (np.prod along the target axis)
+constexpr const char * product_projection_kernel = R"CLC(
+__constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
+
+__kernel void product_projection(
+    IMAGE_src_TYPE  src,
+    IMAGE_dst_TYPE  dst,
+    int axis  // 0=X projection, 1=Y projection, 2=Z projection
+)
+{
+  const int id0 = get_global_id(0);
+  const int id1 = get_global_id(1);
+
+  // Projection length along the target axis
+  const int n = (axis == 0) ? GET_IMAGE_WIDTH(src) :
+                (axis == 1) ? GET_IMAGE_HEIGHT(src) : GET_IMAGE_DEPTH(src);
+
+  float product = 1.0f;
+  for (int i = 0; i < n; i++)
+  {
+    // Map (id0, id1, i) to (x, y, z) based on projection axis
+    const int x = (axis == 0) ? i   : id0;
+    const int y = (axis == 0) ? id0 : (axis == 1) ? i : id1;
+    const int z = (axis == 2) ? i   : id1;
+
+    product *= (float) READ_IMAGE(src, sampler, POS_src_INSTANCE(x, y, z, 0)).x;
+  }
+
+  WRITE_IMAGE(dst, POS_dst_INSTANCE(id0, id1, 0, 0), CONVERT_dst_PIXEL_TYPE(product));
+}
+)CLC";
+
 constexpr const char * maximum_x_projection = R"CLC(
 __constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
 
@@ -435,6 +467,47 @@ sum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src
   const RangeArray    local = { 0, 0, 0 };
   const ConstantList  constants = { { "PROJECTION_AXIS", 2 } }; // 2 for Z axis
   execute(device, kernel, params, range, local, constants);
+  return dst;
+}
+
+auto
+product_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
+{
+  tier0::create_yz(src, dst, dType::FLOAT, keep_dims);
+  const KernelInfo    kernel = { "product_projection", kernel::product_projection_kernel };
+  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 0 } };
+  const RangeArray    range = { dst->width(), dst->height(), 1 };
+  execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_x(src, dst);
+  }
+  return dst;
+}
+
+auto
+product_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
+{
+  tier0::create_xz(src, dst, dType::FLOAT, keep_dims);
+  const KernelInfo    kernel = { "product_projection", kernel::product_projection_kernel };
+  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 1 } };
+  const RangeArray    range = { dst->width(), dst->height(), 1 };
+  execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_y(src, dst);
+  }
+  return dst;
+}
+
+auto
+product_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
+{
+  tier0::create_xy(src, dst, dType::FLOAT, keep_dims);
+  const KernelInfo    kernel = { "product_projection", kernel::product_projection_kernel };
+  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 2 } };
+  const RangeArray    range = { dst->width(), dst->height(), 1 };
+  execute(device, kernel, params, range);
   return dst;
 }
 

@@ -424,4 +424,56 @@ TEST_P(TestDirectionalProjections, keep_dims_position_y_projection)
   EXPECT_EQ(gpu_output->dimension(), 3);
 }
 
+TEST_P(TestDirectionalProjections, product_x_projection)
+{
+  // W=3, H=2, D=2 ; index = x + y*W + z*W*H
+  std::array<float, 3 * 2 * 2> input = { 2, 3, 1, 4, 1, 2, 1, 2, 3, 2, 2, 1 };
+  std::array<float, 2 * 2 * 1> valid = { 6, 8, 6, 4 };
+  std::array<float, 2 * 2 * 1> output;
+
+  auto gpu_input = cle::Array::create(3, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->writeFrom(input.data());
+  auto gpu_output = cle::tier1::product_x_projection_func(device, gpu_input, nullptr);
+  gpu_output->readTo(output.data());
+
+  for (size_t i = 0; i < output.size(); i++)
+  {
+    EXPECT_NEAR(output[i], valid[i], 0.001);
+  }
+}
+
+TEST_P(TestDirectionalProjections, product_y_projection)
+{
+  std::array<float, 3 * 2 * 2> input = { 2, 3, 1, 4, 1, 2, 1, 2, 3, 2, 2, 1 };
+  std::array<float, 3 * 2 * 1> valid = { 8, 3, 2, 2, 4, 3 };
+  std::array<float, 3 * 2 * 1> output;
+
+  auto gpu_input = cle::Array::create(3, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->writeFrom(input.data());
+  auto gpu_output = cle::tier1::product_y_projection_func(device, gpu_input, nullptr);
+  gpu_output->readTo(output.data());
+
+  for (size_t i = 0; i < output.size(); i++)
+  {
+    EXPECT_NEAR(output[i], valid[i], 0.001);
+  }
+}
+
+TEST_P(TestDirectionalProjections, product_z_projection)
+{
+  std::array<float, 3 * 2 * 2> input = { 2, 3, 1, 4, 1, 2, 1, 2, 3, 2, 2, 1 };
+  std::array<float, 3 * 2 * 1> valid = { 2, 6, 3, 8, 2, 2 };
+  std::array<float, 3 * 2 * 1> output;
+
+  auto gpu_input = cle::Array::create(3, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->writeFrom(input.data());
+  auto gpu_output = cle::tier1::product_z_projection_func(device, gpu_input, nullptr);
+  gpu_output->readTo(output.data());
+
+  for (size_t i = 0; i < output.size(); i++)
+  {
+    EXPECT_NEAR(output[i], valid[i], 0.001);
+  }
+}
+
 INSTANTIATE_TEST_SUITE_P(InstantiationName, TestDirectionalProjections, ::testing::ValuesIn(getParameters()));

@@ -2996,6 +2996,57 @@ sum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src
 
 
 /**
+ * @name product_x_projection
+ * @brief Determines the product intensity projection of an image along X. <pre>f(y,z) = prod_x(src(x,y,z))</pre>
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'projection'
+ */
+auto
+product_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
+
+
+/**
+ * @name product_y_projection
+ * @brief Determines the product intensity projection of an image along Y. <pre>f(x,z) = prod_y(src(x,y,z))</pre>
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'projection'
+ */
+auto
+product_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
+
+
+/**
+ * @name product_z_projection
+ * @brief Determines the product intensity projection of an image along Z. <pre>f(x,y) = prod_z(src(x,y,z))</pre>
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'projection', 'in assistant', 'bia-bob-suggestion'
+ */
+auto
+product_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
+
+
+/**
  * @name transpose_xy
  * @brief Transpose X and Y axes of an image.
  *
