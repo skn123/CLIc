@@ -1854,6 +1854,7 @@ mode_func(const Device::Pointer & device,
 /**
  * @name modulo_images
  * @brief Computes the remainder of a division of pairwise pixel values in two images
+ * Uses C truncated division, different than Python's floor division. 
  *
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src0 First input image to process. [const Array::Pointer &]
