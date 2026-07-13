@@ -415,9 +415,8 @@ private:
    * @param origin output physical origin (view base + buffer_origin)
    */
   auto
-  resolveBufferAccess(const std::array<size_t, 3> & buffer_origin,
-                      std::array<size_t, 3> &       shape,
-                      std::array<size_t, 3> &       origin) const -> void;
+  resolveBufferAccess(const std::array<size_t, 3> & buffer_origin, std::array<size_t, 3> & shape, std::array<size_t, 3> & origin) const
+    -> void;
 
   /**
    * @brief Dispatch a device-to-device copy to the appropriate backend routine based on the

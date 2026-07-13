@@ -145,8 +145,7 @@ Array::view(const std::array<size_t, 3> & origin, const std::array<size_t, 3> & 
     }
   }
   size_t new_dim = deduceDimension(region[0], region[1], region[2]);
-  auto   ptr = std::shared_ptr<Array>(
-    new Array(region[0], region[1], region[2], new_dim, dataType_, memType_, data_, device_));
+  auto   ptr = std::shared_ptr<Array>(new Array(region[0], region[1], region[2], new_dim, dataType_, memType_, data_, device_));
   ptr->strides_ = strides_;
   ptr->offset_ = offset_ + origin[0] * strides_[0] + origin[1] * strides_[1] + origin[2] * strides_[2];
   return ptr;
@@ -533,9 +532,8 @@ Array::bufferLayout(std::array<size_t, 3> & shape, std::array<size_t, 3> & origi
 }
 
 auto
-Array::resolveBufferAccess(const std::array<size_t, 3> & buffer_origin,
-                           std::array<size_t, 3> &       shape,
-                           std::array<size_t, 3> &       origin) const -> void
+Array::resolveBufferAccess(const std::array<size_t, 3> & buffer_origin, std::array<size_t, 3> & shape, std::array<size_t, 3> & origin) const
+  -> void
 {
   std::array<size_t, 3> base = { 0, 0, 0 };
   shape = { this->width(), this->height(), this->depth() };

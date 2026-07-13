@@ -356,7 +356,7 @@ TEST_P(TestArray, viewReadWrite)
   }
   auto array = cle::Array::create(7, 7, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, data.data(), device);
 
-  auto                 view = array->view({ 1, 1, 0 }, { 5, 2, 1 });
+  auto                  view = array->view({ 1, 1, 0 }, { 5, 2, 1 });
   std::array<float, 10> read_data;
   view->readTo(read_data.data());
   for (int y = 0; y < 2; y++)
