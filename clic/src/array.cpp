@@ -5,6 +5,12 @@
 namespace cle
 {
 
+static auto
+deduceDimension(size_t width, size_t height, size_t depth) -> unsigned int
+{
+  return (depth > 1) ? 3 : (height > 1) ? 2 : 1;
+}
+
 auto
 Array::New() -> Array::Pointer
 {
@@ -27,7 +33,9 @@ Array::Array(const size_t            width,
   , memType_(mem_type)
   , device_(device_ptr)
   , data_(nullptr)
-{}
+{
+  resetStridesToContiguous();
+}
 
 Array::Array(const size_t                  width,
              const size_t                  height,
@@ -46,7 +54,9 @@ Array::Array(const size_t                  width,
   , device_(device_ptr)
   , data_(gpu_data)
   , initialized_(true)
-{}
+{
+  resetStridesToContiguous();
+}
 
 auto
 Array::create(const size_t            width,
@@ -92,12 +102,17 @@ Array::reshape(size_t new_width, size_t new_height, size_t new_depth, size_t new
     throw std::invalid_argument("Error: Array reshape size mismatch. Original size: " + std::to_string(this->size()) +
                                 ", new size: " + std::to_string(new_width * new_height * new_depth));
   }
+  if (!isContiguous())
+  {
+    throw std::runtime_error("Error: Cannot reshape a non-contiguous Array");
+  }
   if (new_dimension == 0)
   {
     new_dimension = this->dimension();
   }
   auto ptr = std::shared_ptr<Array>(
     new Array(new_width, new_height, new_depth, new_dimension, this->dtype(), this->mtype(), this->get_ptr(), this->device()));
+  ptr->offset_ = offset_;
   return ptr;
 }
 
@@ -105,6 +120,35 @@ auto
 Array::shallow_copy() const -> Array::Pointer
 {
   auto ptr = std::shared_ptr<Array>(new Array(width_, height_, depth_, dim_, dataType_, memType_, data_, device_));
+  ptr->strides_ = strides_;
+  ptr->offset_ = offset_;
+  return ptr;
+}
+
+auto
+Array::view(const std::array<size_t, 3> & origin, const std::array<size_t, 3> & region) const -> Array::Pointer
+{
+  if (!initialized())
+  {
+    throw std::runtime_error("Error: Cannot create a view on an uninitialized Array");
+  }
+  if (mtype() != mType::BUFFER)
+  {
+    throw std::runtime_error("Error: Views are only supported for BUFFER memory type");
+  }
+  const std::array<size_t, 3> dims = { width_, height_, depth_ };
+  for (size_t i = 0; i < 3; ++i)
+  {
+    if (region[i] == 0 || origin[i] + region[i] > dims[i])
+    {
+      throw std::runtime_error("Error: View origin and region are out of bounds");
+    }
+  }
+  size_t new_dim = deduceDimension(region[0], region[1], region[2]);
+  auto   ptr = std::shared_ptr<Array>(
+    new Array(region[0], region[1], region[2], new_dim, dataType_, memType_, data_, device_));
+  ptr->strides_ = strides_;
+  ptr->offset_ = offset_ + origin[0] * strides_[0] + origin[1] * strides_[1] + origin[2] * strides_[2];
   return ptr;
 }
 
@@ -140,9 +184,10 @@ Array::writeFrom(const void * host_data) -> void
   {
     throw std::runtime_error("Error: Host data is null");
   }
+  std::array<size_t, 3> _shape = { 0, 0, 0 };
   std::array<size_t, 3> _origin = { 0, 0, 0 };
-  std::array<size_t, 3> _shape = { this->width(), this->height(), this->depth() };
   std::array<size_t, 3> _region = { this->width(), this->height(), this->depth() };
+  resolveBufferAccess({ 0, 0, 0 }, _shape, _origin);
   BackendManager::getInstance().getBackend().writeMemory(device(), data_, _shape, _origin, _region, dtype(), mtype(), host_data);
 }
 
@@ -153,9 +198,10 @@ Array::writeFrom(const void * host_data, const std::array<size_t, 3> & region, c
   {
     throw std::runtime_error("Error: Host data is null");
   }
-  std::array<size_t, 3> _origin = buffer_origin;
+  std::array<size_t, 3> _shape = { 0, 0, 0 };
+  std::array<size_t, 3> _origin = { 0, 0, 0 };
   std::array<size_t, 3> _region = region;
-  std::array<size_t, 3> _shape = { this->width(), this->height(), this->depth() };
+  resolveBufferAccess(buffer_origin, _shape, _origin);
   BackendManager::getInstance().getBackend().writeMemory(device(), data_, _shape, _origin, _region, dtype(), mtype(), host_data);
 }
 
@@ -172,9 +218,10 @@ Array::readTo(void * host_data) const -> void
   {
     throw std::runtime_error("Error: Host data is null");
   }
+  std::array<size_t, 3> _shape = { 0, 0, 0 };
   std::array<size_t, 3> _origin = { 0, 0, 0 };
-  std::array<size_t, 3> _shape = { this->width(), this->height(), this->depth() };
   std::array<size_t, 3> _region = { this->width(), this->height(), this->depth() };
+  resolveBufferAccess({ 0, 0, 0 }, _shape, _origin);
   BackendManager::getInstance().getBackend().readMemory(device(), data_, _shape, _origin, _region, dtype(), mtype(), host_data);
 }
 
@@ -185,9 +232,10 @@ Array::readTo(void * host_data, const std::array<size_t, 3> & region, const std:
   {
     throw std::runtime_error("Error: Host data is null");
   }
-  std::array<size_t, 3> _origin = buffer_origin;
+  std::array<size_t, 3> _shape = { 0, 0, 0 };
+  std::array<size_t, 3> _origin = { 0, 0, 0 };
   std::array<size_t, 3> _region = region;
-  std::array<size_t, 3> _shape = { this->width(), this->height(), this->depth() };
+  resolveBufferAccess(buffer_origin, _shape, _origin);
   BackendManager::getInstance().getBackend().readMemory(device(), data_, _shape, _origin, _region, dtype(), mtype(), host_data);
 }
 
@@ -195,6 +243,54 @@ auto
 Array::readTo(void * host_data, const size_t x_coord, const size_t y_coord, const size_t z_coord) const -> void
 {
   readTo(host_data, { 1, 1, 1 }, { x_coord, y_coord, z_coord });
+}
+
+auto
+Array::dispatchCopy(const Array::Pointer &        dst,
+                    const std::array<size_t, 3> & src_origin,
+                    const std::array<size_t, 3> & src_shape,
+                    const std::array<size_t, 3> & dst_origin,
+                    const std::array<size_t, 3> & dst_shape,
+                    const std::array<size_t, 3> & region) const -> void
+{
+  auto &       backend = BackendManager::getInstance().getBackend();
+  auto         dst_ptr = dst->get_ptr();
+  const size_t bytes = toBytes(dtype());
+
+  std::array<size_t, 3> _src_origin = src_origin;
+  std::array<size_t, 3> _src_shape = src_shape;
+  std::array<size_t, 3> _dst_origin = dst_origin;
+  std::array<size_t, 3> _dst_shape = dst_shape;
+  std::array<size_t, 3> _region = region;
+
+  if (mtype() == mType::BUFFER && dst->mtype() == mType::BUFFER)
+  {
+    backend.copyMemoryBufferToBuffer(device(), data_, _src_origin, _src_shape, dst_ptr, _dst_origin, _dst_shape, _region, bytes);
+  }
+  else if (mtype() == mType::IMAGE && dst->mtype() == mType::IMAGE)
+  {
+    backend.copyMemoryImageToImage(device(), data_, _src_origin, _src_shape, dst_ptr, _dst_origin, _dst_shape, _region, bytes);
+  }
+  else if (mtype() == mType::BUFFER && dst->mtype() == mType::IMAGE)
+  {
+    if (!isContiguous() || offset() != 0)
+    {
+      throw std::runtime_error("Error: Copying a non-contiguous Array to an Image is not supported");
+    }
+    backend.copyMemoryBufferToImage(device(), data_, _src_origin, _src_shape, dst_ptr, _dst_origin, _dst_shape, _region, bytes);
+  }
+  else if (mtype() == mType::IMAGE && dst->mtype() == mType::BUFFER)
+  {
+    if (!dst->isContiguous() || dst->offset() != 0)
+    {
+      throw std::runtime_error("Error: Copying an Image to a non-contiguous Array is not supported");
+    }
+    backend.copyMemoryImageToBuffer(device(), data_, _src_origin, _src_shape, dst_ptr, _dst_origin, _dst_shape, _region, bytes);
+  }
+  else
+  {
+    throw std::runtime_error("Error: Copying Arrays from different memory types");
+  }
 }
 
 auto
@@ -216,15 +312,23 @@ Array::copyTo(const Array::Pointer & dst) const -> void
   std::array<size_t, 3> _src_shape = { this->width(), this->height(), this->depth() };
   std::array<size_t, 3> _dst_shape = { dst->width(), dst->height(), dst->depth() };
 
-  auto dst_ptr = dst->get_ptr();
-
   if (mtype() == mType::BUFFER && dst->mtype() == mType::BUFFER)
   {
-    _region = { this->size(), 1, 1 };
-    _src_shape = { this->size(), 1, 1 };
-    _dst_shape = { dst->size(), 1, 1 };
-    BackendManager::getInstance().getBackend().copyMemoryBufferToBuffer(
-      device(), data_, _src_origin, _src_shape, dst_ptr, _dst_origin, _dst_shape, _region, toBytes(dtype()));
+    if (isContiguous() && offset() == 0 && dst->isContiguous() && dst->offset() == 0)
+    {
+      _region = { this->size(), 1, 1 };
+      _src_shape = { this->size(), 1, 1 };
+      _dst_shape = { dst->size(), 1, 1 };
+    }
+    else
+    {
+      if (this->width() != dst->width() || this->height() != dst->height() || this->depth() != dst->depth())
+      {
+        throw std::runtime_error("Error: Copying non-contiguous Arrays of different dimensions");
+      }
+      bufferLayout(_src_shape, _src_origin);
+      dst->bufferLayout(_dst_shape, _dst_origin);
+    }
   }
   else if (mtype() == mType::IMAGE && dst->mtype() == mType::IMAGE)
   {
@@ -232,25 +336,17 @@ Array::copyTo(const Array::Pointer & dst) const -> void
     {
       throw std::runtime_error("Error: Copying Images of different dimensions");
     }
-    BackendManager::getInstance().getBackend().copyMemoryImageToImage(
-      device(), data_, _src_origin, _src_shape, dst_ptr, _dst_origin, _dst_shape, _region, toBytes(dtype()));
   }
   else if (mtype() == mType::BUFFER && dst->mtype() == mType::IMAGE)
   {
     _src_shape = { this->size(), 1, 1 };
-    BackendManager::getInstance().getBackend().copyMemoryBufferToImage(
-      device(), data_, _src_origin, _src_shape, dst_ptr, _dst_origin, _dst_shape, _region, toBytes(dtype()));
   }
   else if (mtype() == mType::IMAGE && dst->mtype() == mType::BUFFER)
   {
     _dst_shape = { dst->size(), 1, 1 };
-    BackendManager::getInstance().getBackend().copyMemoryImageToBuffer(
-      device(), data_, _src_origin, _src_shape, dst_ptr, _dst_origin, _dst_shape, _region, toBytes(dtype()));
   }
-  else
-  {
-    throw std::runtime_error("Error: Copying Arrays from different memory types");
-  }
+
+  dispatchCopy(dst, _src_origin, _src_shape, _dst_origin, _dst_shape, _region);
 }
 
 auto
@@ -271,27 +367,65 @@ Array::copyTo(const Array::Pointer &        dst,
   std::array<size_t, 3> _src_shape = { this->width(), this->height(), this->depth() };
   std::array<size_t, 3> _dst_shape = { dst->width(), dst->height(), dst->depth() };
 
-  auto dst_ptr = dst->get_ptr();
-
   if (mtype() == mType::BUFFER && dst->mtype() == mType::BUFFER)
   {
-    BackendManager::getInstance().getBackend().copyMemoryBufferToBuffer(
-      device(), data_, _src_origin, _src_shape, dst_ptr, _dst_origin, _dst_shape, _region, toBytes(dtype()));
+    std::array<size_t, 3> _src_base = { 0, 0, 0 };
+    std::array<size_t, 3> _dst_base = { 0, 0, 0 };
+    bufferLayout(_src_shape, _src_base);
+    dst->bufferLayout(_dst_shape, _dst_base);
+    for (size_t i = 0; i < 3; ++i)
+    {
+      _src_origin[i] += _src_base[i];
+      _dst_origin[i] += _dst_base[i];
+    }
   }
-  else if (mtype() == mType::IMAGE && dst->mtype() == mType::IMAGE)
+
+  dispatchCopy(dst, _src_origin, _src_shape, _dst_origin, _dst_shape, _region);
+}
+
+static auto
+fillWithHostData(Array & array, const float value) -> void
+{
+  switch (array.dtype())
   {
-    BackendManager::getInstance().getBackend().copyMemoryImageToImage(
-      device(), data_, _src_origin, _src_shape, dst_ptr, _dst_origin, _dst_shape, _region, toBytes(dtype()));
-  }
-  else if (mtype() == mType::BUFFER && dst->mtype() == mType::IMAGE)
-  {
-    BackendManager::getInstance().getBackend().copyMemoryBufferToImage(
-      device(), data_, _src_origin, _src_shape, dst_ptr, _dst_origin, _dst_shape, _region, toBytes(dtype()));
-  }
-  else if (mtype() == mType::IMAGE && dst->mtype() == mType::BUFFER)
-  {
-    BackendManager::getInstance().getBackend().copyMemoryImageToBuffer(
-      device(), data_, _src_origin, _src_shape, dst_ptr, _dst_origin, _dst_shape, _region, toBytes(dtype()));
+    case dType::FLOAT: {
+      std::vector<float> data(array.size(), value);
+      array.writeFrom(data.data());
+      return;
+    }
+    case dType::INT8: {
+      std::vector<int8_t> data(array.size(), static_cast<int8_t>(value));
+      array.writeFrom(data.data());
+      return;
+    }
+    case dType::INT16: {
+      std::vector<int16_t> data(array.size(), static_cast<int16_t>(value));
+      array.writeFrom(data.data());
+      return;
+    }
+    case dType::INT32: {
+      std::vector<int32_t> data(array.size(), static_cast<int32_t>(value));
+      array.writeFrom(data.data());
+      return;
+    }
+    case dType::UINT8: {
+      std::vector<uint8_t> data(array.size(), static_cast<uint8_t>(value));
+      array.writeFrom(data.data());
+      return;
+    }
+    case dType::UINT16: {
+      std::vector<uint16_t> data(array.size(), static_cast<uint16_t>(value));
+      array.writeFrom(data.data());
+      return;
+    }
+    case dType::UINT32: {
+      std::vector<uint32_t> data(array.size(), static_cast<uint32_t>(value));
+      array.writeFrom(data.data());
+      return;
+    }
+    default: {
+      throw std::runtime_error("Error: Unsupported data type");
+    }
   }
 }
 
@@ -302,49 +436,15 @@ Array::fill(const float value) -> void
   // clEnqueueFillBuffer not behaving as expected on Apple Silicon
   // FIX: Filling buffer with host data
   // TODO: Find a better solution
-  auto data_type = dtype();
-  switch (data_type)
-  {
-    case dType::FLOAT: {
-      std::vector<float> data(this->size(), value);
-      writeFrom(data.data());
-      return;
-    }
-    case dType::INT8: {
-      std::vector<int8_t> data(this->size(), static_cast<int8_t>(value));
-      writeFrom(data.data());
-      return;
-    }
-    case dType::INT16: {
-      std::vector<int16_t> data(this->size(), static_cast<int16_t>(value));
-      writeFrom(data.data());
-      return;
-    }
-    case dType::INT32: {
-      std::vector<int32_t> data(this->size(), static_cast<int32_t>(value));
-      writeFrom(data.data());
-      return;
-    }
-    case dType::UINT8: {
-      std::vector<uint8_t> data(this->size(), static_cast<uint8_t>(value));
-      writeFrom(data.data());
-      return;
-    }
-    case dType::UINT16: {
-      std::vector<uint16_t> data(this->size(), static_cast<uint16_t>(value));
-      writeFrom(data.data());
-      return;
-    }
-    case dType::UINT32: {
-      std::vector<uint32_t> data(this->size(), static_cast<uint32_t>(value));
-      writeFrom(data.data());
-      return;
-    }
-    default: {
-      throw std::runtime_error("Error: Unsupported data type");
-    }
-  }
+  fillWithHostData(*this, value);
 #else
+  if (mtype() == mType::BUFFER && (!isContiguous() || offset() != 0))
+  {
+    // setMemory fills from the buffer base and ignores origin, which would
+    // corrupt data outside the view
+    fillWithHostData(*this, value);
+    return;
+  }
   std::array<size_t, 3> _origin = { 0, 0, 0 };
   std::array<size_t, 3> _region = { this->width(), this->height(), this->depth() };
   std::array<size_t, 3> _shape = { this->width(), this->height(), this->depth() };
@@ -383,6 +483,67 @@ Array::depth() const -> size_t
 }
 
 auto
+Array::strides() const -> const std::array<size_t, 3> &
+{
+  return strides_;
+}
+
+auto
+Array::offset() const -> size_t
+{
+  return offset_;
+}
+
+auto
+Array::isContiguous() const -> bool
+{
+  return strides_[0] == 1 && strides_[1] == width_ && strides_[2] == width_ * height_;
+}
+
+auto
+Array::resetStridesToContiguous() -> void
+{
+  strides_ = { 1, width_, width_ * height_ };
+  offset_ = 0;
+}
+
+auto
+Array::bufferLayout(std::array<size_t, 3> & shape, std::array<size_t, 3> & origin) const -> void
+{
+  if (strides_[0] != 1)
+  {
+    throw std::runtime_error("Error: Arrays with non-unit x-stride are not supported for memory transfers");
+  }
+  const size_t row = strides_[1];
+  const size_t slice = strides_[2];
+  if (row == 0 || slice == 0 || slice % row != 0)
+  {
+    throw std::runtime_error("Error: Array strides do not describe a pitched buffer layout");
+  }
+  const size_t oz = offset_ / slice;
+  const size_t rem = offset_ % slice;
+  const size_t oy = rem / row;
+  const size_t ox = rem % row;
+  if (ox + width_ > row || (height_ > 1 && oy + height_ > slice / row))
+  {
+    throw std::runtime_error("Error: Array view exceeds its buffer layout bounds");
+  }
+  shape = { row, slice / row, oz + depth_ };
+  origin = { ox, oy, oz };
+}
+
+auto
+Array::resolveBufferAccess(const std::array<size_t, 3> & buffer_origin,
+                           std::array<size_t, 3> &       shape,
+                           std::array<size_t, 3> &       origin) const -> void
+{
+  std::array<size_t, 3> base = { 0, 0, 0 };
+  shape = { this->width(), this->height(), this->depth() };
+  bufferLayout(shape, base);
+  origin = { base[0] + buffer_origin[0], base[1] + buffer_origin[1], base[2] + buffer_origin[2] };
+}
+
+auto
 Array::itemSize() const -> size_t
 {
   return toBytes(dataType_);
@@ -409,7 +570,7 @@ Array::device() const -> Device::Pointer
 auto
 Array::dim() const -> unsigned int
 {
-  return (depth_ > 1) ? 3 : (height_ > 1) ? 2 : 1;
+  return deduceDimension(width_, height_, depth_);
 }
 
 auto
@@ -444,17 +605,6 @@ Array::get_ptr() const -> std::shared_ptr<void>
 
 
 // DLPack interoperability
-// Helper: compute C-contiguous strides for a given shape
-static auto
-makeContiguousStrides(int32_t ndim, const int64_t * shape) -> int64_t *
-{
-  auto * strides = new int64_t[ndim];
-  strides[ndim - 1] = 1;
-  for (int32_t i = ndim - 2; i >= 0; --i)
-    strides[i] = strides[i + 1] * shape[i + 1];
-  return strides;
-}
-
 auto
 Array::toDLPack() const -> DLManagedTensorVersioned *
 {
@@ -486,7 +636,12 @@ Array::toDLPack() const -> DLManagedTensorVersioned *
     shape[2] = static_cast<int64_t>(width());
   }
 
-  int64_t * strides = makeContiguousStrides(ndim, shape);
+  // Strides: DLPack C-order — element strides for [depth, height, width]
+  auto * strides = new int64_t[ndim];
+  for (int32_t i = 0; i < ndim; ++i)
+  {
+    strides[i] = static_cast<int64_t>(strides_[ndim - 1 - i]);
+  }
 
   // Device type
   DLDeviceType dl_device_type;
@@ -504,7 +659,7 @@ Array::toDLPack() const -> DLManagedTensorVersioned *
   managed->dl_tensor.dtype = toDLDataType(dtype());
   managed->dl_tensor.shape = shape;
   managed->dl_tensor.strides = strides; // required since DLPack v1.2
-  managed->dl_tensor.byte_offset = 0;
+  managed->dl_tensor.byte_offset = static_cast<uint64_t>(offset_ * itemSize());
 
   // Keep the Array alive via manager_ctx
   managed->manager_ctx = new Array::Pointer(shallow_copy());
