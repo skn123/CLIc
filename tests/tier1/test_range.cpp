@@ -77,4 +77,28 @@ TEST_P(TestRange, executeNegative)
     EXPECT_EQ(output[i], valid[i]);
   }
 }
+
+TEST_P(TestRange, executeNonDivisibleStride)
+{
+  // y in [1, 6) step 2 -> rows 1, 3, 5 (values 2, 4, 6), i.e. ceil(5 / 2) = 3 rows
+  std::array<float, 6 * 3 * 1> output;
+  std::array<float, 6 * 3 * 1> valid = { 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 6, 6, 6, 6, 6, 6 };
+
+  std::string param = GetParam();
+  cle::BackendManager::getInstance().setBackend(param);
+  auto device = cle::BackendManager::getInstance().getBackend().getDevice("", "gpu");
+  device->setWaitToFinish(true);
+
+  auto gpu_input = cle::Array::create(6, 6, 1, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->writeFrom(input.data());
+
+  auto gpu_output = cle::tier1::range_func(device, gpu_input, nullptr, 0, 6, 1, 1, 6, 2, 1, 1, 1);
+
+  ASSERT_EQ(gpu_output->height(), 3);
+  gpu_output->readTo(output.data());
+  for (int i = 0; i < output.size(); i++)
+  {
+    EXPECT_EQ(output[i], valid[i]);
+  }
+}
 INSTANTIATE_TEST_SUITE_P(InstantiationName, TestRange, ::testing::ValuesIn(getParameters()));
