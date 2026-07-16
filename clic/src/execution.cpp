@@ -660,18 +660,18 @@ evaluate(const Device::Pointer &            device,
   }
   ks << "\n) {\n";
 
-  ks << "    const int x = get_global_id(0);\n";
-  ks << "    const int y = get_global_id(1);\n";
-  ks << "    const int z = get_global_id(2);\n\n";
+  ks << "    const int id0 = get_global_id(0);\n";
+  ks << "    const int id1 = get_global_id(1);\n";
+  ks << "    const int id2 = get_global_id(2);\n\n";
 
   for (const auto & a : arrays)
   {
     ks << "    const float " << a.name << " = (float)READ_IMAGE(arr_" << a.name << ", sampler, POS_arr_" << a.name
-       << "_INSTANCE(x,y,z,0)).x;\n";
+       << "_INSTANCE(id0,id1,id2,0)).x;\n";
   }
   ks << "\n";
   ks << "    const float value = " << float_expression << ";\n";
-  ks << "    WRITE_IMAGE(dst, POS_dst_INSTANCE(x,y,z,0), CONVERT_dst_PIXEL_TYPE(value));\n";
+  ks << "    WRITE_IMAGE(dst, POS_dst_INSTANCE(id0,id1,id2,0), CONVERT_dst_PIXEL_TYPE(value));\n";
   ks << "}\n";
 
   // --- Delegate to execute() ---
