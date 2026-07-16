@@ -2924,8 +2924,11 @@ std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @note 'projection'
  */
 auto
-variance_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof = 0, bool keep_dims = false)
-  -> Array::Pointer;
+variance_x_projection_func(const Device::Pointer & device,
+                           const Array::Pointer &  src,
+                           Array::Pointer          dst,
+                           int                     ddof = 0,
+                           bool                    keep_dims = false) -> Array::Pointer;
 
 
 /**
@@ -2942,8 +2945,11 @@ variance_x_projection_func(const Device::Pointer & device, const Array::Pointer 
  * @note 'projection'
  */
 auto
-variance_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof = 0, bool keep_dims = false)
-  -> Array::Pointer;
+variance_y_projection_func(const Device::Pointer & device,
+                           const Array::Pointer &  src,
+                           Array::Pointer          dst,
+                           int                     ddof = 0,
+                           bool                    keep_dims = false) -> Array::Pointer;
 
 
 /**
@@ -2960,8 +2966,11 @@ variance_y_projection_func(const Device::Pointer & device, const Array::Pointer 
  * @note 'projection', 'in assistant', 'bia-bob-suggestion'
  */
 auto
-variance_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof = 0, bool keep_dims = false)
-  -> Array::Pointer;
+variance_z_projection_func(const Device::Pointer & device,
+                           const Array::Pointer &  src,
+                           Array::Pointer          dst,
+                           int                     ddof = 0,
+                           bool                    keep_dims = false) -> Array::Pointer;
 
 
 /**

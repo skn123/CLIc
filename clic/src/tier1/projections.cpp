@@ -296,12 +296,12 @@ keepdims_x(const Array::Pointer & src, const Array::Pointer & dst) -> Array::Poi
 // a given axis (0=X, 1=Y, 2=Z). Set compute_std to return the standard deviation.
 auto
 deviation_projection(const Device::Pointer & device,
-                     const Array::Pointer & src,
-                     Array::Pointer         dst,
-                     int                    axis,
-                     int                    ddof,
-                     bool                   keep_dims,
-                     bool                   compute_std) -> Array::Pointer
+                     const Array::Pointer &  src,
+                     Array::Pointer          dst,
+                     int                     axis,
+                     int                     ddof,
+                     bool                    keep_dims,
+                     bool                    compute_std) -> Array::Pointer
 {
   switch (axis)
   {
@@ -333,12 +333,12 @@ deviation_projection(const Device::Pointer & device,
 // runtime through the "axis" argument.
 auto
 axis_projection(const Device::Pointer & device,
-                const Array::Pointer & src,
-                Array::Pointer         dst,
-                int                    axis,
-                bool                   keep_dims,
-                const KernelInfo &     kernel,
-                dType                  type) -> Array::Pointer
+                const Array::Pointer &  src,
+                Array::Pointer          dst,
+                int                     axis,
+                bool                    keep_dims,
+                const KernelInfo &      kernel,
+                dType                   type) -> Array::Pointer
 {
   switch (axis)
   {
@@ -364,37 +364,43 @@ axis_projection(const Device::Pointer & device,
 } // namespace
 
 auto
-std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims) -> Array::Pointer
+std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims)
+  -> Array::Pointer
 {
   return deviation_projection(device, src, dst, 0, ddof, keep_dims, true);
 }
 
 auto
-std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims) -> Array::Pointer
+std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims)
+  -> Array::Pointer
 {
   return deviation_projection(device, src, dst, 1, ddof, keep_dims, true);
 }
 
 auto
-std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims) -> Array::Pointer
+std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims)
+  -> Array::Pointer
 {
   return deviation_projection(device, src, dst, 2, ddof, keep_dims, true);
 }
 
 auto
-variance_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims) -> Array::Pointer
+variance_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims)
+  -> Array::Pointer
 {
   return deviation_projection(device, src, dst, 0, ddof, keep_dims, false);
 }
 
 auto
-variance_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims) -> Array::Pointer
+variance_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims)
+  -> Array::Pointer
 {
   return deviation_projection(device, src, dst, 1, ddof, keep_dims, false);
 }
 
 auto
-variance_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims) -> Array::Pointer
+variance_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims)
+  -> Array::Pointer
 {
   return deviation_projection(device, src, dst, 2, ddof, keep_dims, false);
 }

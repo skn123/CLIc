@@ -89,7 +89,7 @@ TEST_P(TestDirectionalProjections, std_x_projection_ddof)
     }
 
     std::array<float, 5 * 5 * 1> output;
-    auto gpu_output = cle::tier1::std_x_projection_func(device, gpu_input, nullptr, ddof);
+    auto                         gpu_output = cle::tier1::std_x_projection_func(device, gpu_input, nullptr, ddof);
     gpu_output->readTo(output.data());
 
     for (size_t i = 0; i < output.size(); i++)
@@ -100,7 +100,8 @@ TEST_P(TestDirectionalProjections, std_x_projection_ddof)
 }
 
 // Test STD projections with static data
-TEST_P(TestDirectionalProjections, std_y_projection){
+TEST_P(TestDirectionalProjections, std_y_projection)
+{
   std::array<float, 5 * 5 * 1> output;
   std::array<float, 5 * 5 * 5> input = { 1, 0, 0, 0, 9, 0, 2, 0, 8, 0,  3, 0, 1, 0, 10, 0, 4, 0, 7, 0,  5, 0, 6, 0, 10,
                                          0, 2, 0, 8, 0, 1, 0, 0, 0, 9,  3, 0, 1, 0, 10, 0, 4, 0, 7, 0,  5, 0, 6, 0, 10,
