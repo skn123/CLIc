@@ -44,7 +44,6 @@ apply_binary_math_operation(const Device::Pointer & device,
                             float                   scalar,
                             const std::string &     op_define) -> Array::Pointer
 {
-  tier0::create_like(src, dst);
   std::string         dst_is_int = (dst->dtype() == dType::FLOAT) ? "0" : "1";
   const KernelInfo    kernel_info = { "cle_binary_operation", kernel_source };
   const ParameterList params = { { "src", src }, { "dst", dst }, { "scalar", scalar } };
@@ -60,12 +59,14 @@ apply_binary_math_operation(const Device::Pointer & device,
 auto
 power_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar) -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::FLOAT);
   return apply_binary_math_operation(device, src, dst, scalar, "pow(x, y)");
 }
 
 auto
 root_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar) -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::FLOAT);
   return apply_binary_math_operation(device, src, dst, scalar, "rootn(x, y)");
 }
 
@@ -73,6 +74,7 @@ auto
 maximum_image_and_scalar_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar)
   -> Array::Pointer
 {
+  tier0::create_like(src, dst);
   return apply_binary_math_operation(device, src, dst, scalar, "fmax(x, y)");
 }
 
@@ -80,12 +82,14 @@ auto
 minimum_image_and_scalar_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar)
   -> Array::Pointer
 {
+  tier0::create_like(src, dst);
   return apply_binary_math_operation(device, src, dst, scalar, "fmin(x, y)");
 }
 
 auto
 add_image_and_scalar_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar) -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::FLOAT);
   return apply_binary_math_operation(device, src, dst, scalar, "(x + y)");
 }
 
@@ -93,6 +97,7 @@ auto
 subtract_scalar_from_image_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar)
   -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::FLOAT);
   return apply_binary_math_operation(device, src, dst, scalar, "(x - y)");
 }
 
@@ -100,18 +105,21 @@ auto
 subtract_image_from_scalar_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar)
   -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::FLOAT);
   return apply_binary_math_operation(device, src, dst, scalar, "(y - x)");
 }
 
 auto
 divide_image_by_scalar_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar) -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::FLOAT);
   return apply_binary_math_operation(device, src, dst, scalar, "(x / y)");
 }
 
 auto
 divide_scalar_by_image_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar) -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::FLOAT);
   return apply_binary_math_operation(device, src, dst, scalar, "(y / x)");
 }
 
@@ -119,6 +127,7 @@ auto
 multiply_image_and_scalar_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, float scalar)
   -> Array::Pointer
 {
+  tier0::create_like(src, dst, dType::FLOAT);
   return apply_binary_math_operation(device, src, dst, scalar, "(x * y)");
 }
 

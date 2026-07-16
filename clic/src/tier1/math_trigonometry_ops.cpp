@@ -31,7 +31,7 @@ auto
 apply_trigonometric_op(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, const std::string & op_expr)
   -> Array::Pointer
 {
-  tier0::create_like(src, dst);
+  tier0::create_like(src, dst, dType::FLOAT);
   const RangeArray    global_range = { dst->width(), dst->height(), dst->depth() };
   const KernelInfo    kernel = { "math_trigo", kernel_source };
   const ParameterList params = { { "src", src }, { "dst", dst } };
