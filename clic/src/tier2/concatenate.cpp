@@ -14,24 +14,25 @@ concatenate_func(const Device::Pointer & device,
                  Array::Pointer          dst,
                  const int               axis) -> Array::Pointer
 {
+  auto promoted_type = promoteType(src0->dtype(), src1->dtype());
   switch (axis)
   {
     case 0: {
-      tier0::create_dst(src0, dst, src0->width() + src1->width(), src0->height(), src0->depth(), src0->dtype());
+      tier0::create_dst(src0, dst, src0->width() + src1->width(), src0->height(), src0->depth(), promoted_type);
       dst->fill(0);
       tier1::paste_func(device, src0, dst, 0, 0, 0);
       tier1::paste_func(device, src1, dst, src0->width(), 0, 0);
       break;
     }
     case 1: {
-      tier0::create_dst(src0, dst, src0->width(), src0->height() + src1->height(), src0->depth(), src0->dtype());
+      tier0::create_dst(src0, dst, src0->width(), src0->height() + src1->height(), src0->depth(), promoted_type);
       dst->fill(0);
       tier1::paste_func(device, src0, dst, 0, 0, 0);
       tier1::paste_func(device, src1, dst, 0, src0->height(), 0);
       break;
     }
     case 2: {
-      tier0::create_dst(src0, dst, src0->width(), src0->height(), src0->depth() + src1->depth(), src0->dtype());
+      tier0::create_dst(src0, dst, src0->width(), src0->height(), src0->depth() + src1->depth(), promoted_type);
       dst->fill(0);
       tier1::paste_func(device, src0, dst, 0, 0, 0);
       tier1::paste_func(device, src1, dst, 0, 0, src0->depth());

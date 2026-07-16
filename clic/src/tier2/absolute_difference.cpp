@@ -11,7 +11,8 @@ auto
 absolute_difference_func(const Device::Pointer & device, const Array::Pointer & src0, const Array::Pointer & src1, Array::Pointer dst)
   -> Array::Pointer
 {
-  tier0::create_like(src0, dst);
+  tier0::create_like(src0, dst, promoteType(src0->dtype(), src1->dtype()));
+
   evaluate(device, "fabs(src0 - src1)", { src0, src1 }, dst);
   return dst;
 }
