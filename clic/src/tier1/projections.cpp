@@ -292,6 +292,27 @@ keepdims_x(const Array::Pointer & src, const Array::Pointer & dst) -> Array::Poi
   return dst->reshape(1, dst->width(), dst->height(), src->dimension());
 }
 
+// Select the accumulator dtype for the sum / product projections based on the
+// source dtype: floating-point (or complex) sources accumulate into FLOAT,
+// signed integers into INT32, and unsigned integers into UINT32.
+auto
+accumulator_type(const Array::Pointer & src) -> dType
+{
+  switch (src->dtype())
+  {
+    case dType::INT8:
+    case dType::INT16:
+    case dType::INT32:
+      return dType::INT32;
+    case dType::UINT8:
+    case dType::UINT16:
+    case dType::UINT32:
+      return dType::UINT32;
+    default:
+      return dType::FLOAT;
+  }
+}
+
 // Shared implementation for the variance / standard-deviation projections along
 // a given axis (0=X, 1=Y, 2=Z). Set compute_std to return the standard deviation.
 auto
@@ -426,19 +447,19 @@ maximum_z_projection_func(const Device::Pointer & device, const Array::Pointer &
 auto
 mean_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  return axis_projection(device, src, dst, 0, keep_dims, { "mean_projection", kernel::mean_projection_kernel }, dType::UNKNOWN);
+  return axis_projection(device, src, dst, 0, keep_dims, { "mean_projection", kernel::mean_projection_kernel }, dType::FLOAT);
 }
 
 auto
 mean_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  return axis_projection(device, src, dst, 1, keep_dims, { "mean_projection", kernel::mean_projection_kernel }, dType::UNKNOWN);
+  return axis_projection(device, src, dst, 1, keep_dims, { "mean_projection", kernel::mean_projection_kernel }, dType::FLOAT);
 }
 
 auto
 mean_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  return axis_projection(device, src, dst, 2, keep_dims, { "mean_projection", kernel::mean_projection_kernel }, dType::UNKNOWN);
+  return axis_projection(device, src, dst, 2, keep_dims, { "mean_projection", kernel::mean_projection_kernel }, dType::FLOAT);
 }
 
 auto
@@ -462,60 +483,37 @@ minimum_z_projection_func(const Device::Pointer & device, const Array::Pointer &
 auto
 sum_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  return axis_projection(device, src, dst, 0, keep_dims, { "sum_projection", kernel::sum_projection_kernel }, dType::FLOAT);
+  return axis_projection(device, src, dst, 0, keep_dims, { "sum_projection", kernel::sum_projection_kernel }, accumulator_type(src));
 }
 
 auto
 sum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  return axis_projection(device, src, dst, 1, keep_dims, { "sum_projection", kernel::sum_projection_kernel }, dType::FLOAT);
+  return axis_projection(device, src, dst, 1, keep_dims, { "sum_projection", kernel::sum_projection_kernel }, accumulator_type(src));
 }
 
 auto
 sum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  return axis_projection(device, src, dst, 2, keep_dims, { "sum_projection", kernel::sum_projection_kernel }, dType::FLOAT);
+  return axis_projection(device, src, dst, 2, keep_dims, { "sum_projection", kernel::sum_projection_kernel }, accumulator_type(src));
 }
 
 auto
 product_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_yz(src, dst, dType::FLOAT, keep_dims);
-  const KernelInfo    kernel = { "product_projection", kernel::product_projection_kernel };
-  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 0 } };
-  const RangeArray    range = { dst->width(), dst->height(), 1 };
-  execute(device, kernel, params, range);
-  if (keep_dims)
-  {
-    dst = keepdims_x(src, dst);
-  }
-  return dst;
+  return axis_projection(device, src, dst, 0, keep_dims, { "product_projection", kernel::product_projection_kernel }, accumulator_type(src));
 }
 
 auto
 product_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xz(src, dst, dType::FLOAT, keep_dims);
-  const KernelInfo    kernel = { "product_projection", kernel::product_projection_kernel };
-  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 1 } };
-  const RangeArray    range = { dst->width(), dst->height(), 1 };
-  execute(device, kernel, params, range);
-  if (keep_dims)
-  {
-    dst = keepdims_y(src, dst);
-  }
-  return dst;
+  return axis_projection(device, src, dst, 1, keep_dims, { "product_projection", kernel::product_projection_kernel }, accumulator_type(src));
 }
 
 auto
 product_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  tier0::create_xy(src, dst, dType::FLOAT, keep_dims);
-  const KernelInfo    kernel = { "product_projection", kernel::product_projection_kernel };
-  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 2 } };
-  const RangeArray    range = { dst->width(), dst->height(), 1 };
-  execute(device, kernel, params, range);
-  return dst;
+  return axis_projection(device, src, dst, 2, keep_dims, { "product_projection", kernel::product_projection_kernel }, accumulator_type(src));
 }
 
 auto
