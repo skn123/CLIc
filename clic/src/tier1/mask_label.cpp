@@ -12,7 +12,7 @@ auto
 mask_label_func(const Device::Pointer & device, const Array::Pointer & src0, const Array::Pointer & src1, Array::Pointer dst, float label)
   -> Array::Pointer
 {
-    tier0::create_like(src0, dst, promoteType(src0->dtype(), src1->dtype()));
+  tier0::create_like(src0, dst, promoteType(src0->dtype(), src1->dtype()));
 
   const KernelInfo    kernel = { "mask_label", kernel::mask_label };
   const ParameterList params = { { "src0", src0 }, { "src1", src1 }, { "dst", dst }, { "scalar", label } };
