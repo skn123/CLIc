@@ -26,7 +26,8 @@ __constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_T
 __kernel void std_projection(
     IMAGE_src_TYPE  src,
     IMAGE_dst_TYPE  dst,
-    int axis  // 0=X projection, 1=Y projection, 2=Z projection
+    int axis, // 0=X projection, 1=Y projection, 2=Z projection
+    int ddof  // delta degrees of freedom (divisor is n - ddof)
 )
 {
   const int id0 = get_global_id(0);
@@ -54,13 +55,62 @@ __kernel void std_projection(
     m2 += delta * delta2;
   }
 
-  const float std_value = (n > 0) ? sqrt(m2 / (float)n) : 0;
+  const int   dof = n - ddof;
+  const float std_value = (dof > 0) ? sqrt(m2 / (float)dof) : 0;
 
   const int ox = id0;
   const int oy = id1;
   const int oz = 0;
 
   WRITE_IMAGE(dst, POS_dst_INSTANCE(ox, oy, oz, 0), CONVERT_dst_PIXEL_TYPE(std_value));
+}
+)CLC";
+
+// Generalized variance projection kernel for any axis (np.var along the target axis)
+// Uses Welford's online algorithm for single-pass, numerically stable computation
+constexpr const char * variance_projection_kernel = R"CLC(
+__constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
+
+__kernel void variance_projection(
+    IMAGE_src_TYPE  src,
+    IMAGE_dst_TYPE  dst,
+    int axis, // 0=X projection, 1=Y projection, 2=Z projection
+    int ddof  // delta degrees of freedom (divisor is n - ddof)
+)
+{
+  const int id0 = get_global_id(0);
+  const int id1 = get_global_id(1);
+
+  // Projection length along the target axis
+  const int n = (axis == 0) ? GET_IMAGE_WIDTH(src) :
+                (axis == 1) ? GET_IMAGE_HEIGHT(src) : GET_IMAGE_DEPTH(src);
+
+  // Welford's online algorithm: single pass, numerically stable
+  float mean = 0;
+  float m2 = 0;
+
+  for (int i = 0; i < n; i++)
+  {
+    // Map (id0, id1, i) to (x, y, z) based on projection axis
+    const int x = (axis == 0) ? i   : id0;
+    const int y = (axis == 0) ? id0 : (axis == 1) ? i : id1;
+    const int z = (axis == 2) ? i   : id1;
+
+    const float value = (float) READ_IMAGE(src, sampler, POS_src_INSTANCE(x, y, z, 0)).x;
+    const float delta = value - mean;
+    mean += delta / (float)(i + 1);
+    const float delta2 = value - mean;
+    m2 += delta * delta2;
+  }
+
+  const int   dof = n - ddof;
+  const float variance_value = (dof > 0) ? (m2 / (float)dof) : 0;
+
+  const int ox = id0;
+  const int oy = id1;
+  const int oz = 0;
+
+  WRITE_IMAGE(dst, POS_dst_INSTANCE(ox, oy, oz, 0), CONVERT_dst_PIXEL_TYPE(variance_value));
 }
 )CLC";
 
@@ -251,11 +301,11 @@ keepdims_x(const Array::Pointer & src, const Array::Pointer & dst) -> Array::Poi
 } // namespace
 
 auto
-std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
+std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims) -> Array::Pointer
 {
   tier0::create_yz(src, dst, dType::FLOAT, keep_dims);
   const KernelInfo    kernel = { "std_projection", kernel::std_projection_kernel };
-  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 0 } };
+  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 0 }, { "ddof", ddof } };
   const RangeArray    range = { dst->width(), dst->height(), 1 };
   execute(device, kernel, params, range);
   if (keep_dims)
@@ -266,11 +316,11 @@ std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src
 }
 
 auto
-std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
+std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims) -> Array::Pointer
 {
   tier0::create_xz(src, dst, dType::FLOAT, keep_dims);
   const KernelInfo    kernel = { "std_projection", kernel::std_projection_kernel };
-  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 1 } };
+  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 1 }, { "ddof", ddof } };
   const RangeArray    range = { dst->width(), dst->height(), 1 };
   execute(device, kernel, params, range);
   if (keep_dims)
@@ -281,11 +331,52 @@ std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src
 }
 
 auto
-std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
+std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims) -> Array::Pointer
 {
   tier0::create_xy(src, dst, dType::FLOAT, keep_dims);
   const KernelInfo    kernel = { "std_projection", kernel::std_projection_kernel };
-  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 2 } };
+  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 2 }, { "ddof", ddof } };
+  const RangeArray    range = { dst->width(), dst->height(), 1 };
+  execute(device, kernel, params, range);
+  return dst;
+}
+
+auto
+variance_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims) -> Array::Pointer
+{
+  tier0::create_yz(src, dst, dType::FLOAT, keep_dims);
+  const KernelInfo    kernel = { "variance_projection", kernel::variance_projection_kernel };
+  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 0 }, { "ddof", ddof } };
+  const RangeArray    range = { dst->width(), dst->height(), 1 };
+  execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_x(src, dst);
+  }
+  return dst;
+}
+
+auto
+variance_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims) -> Array::Pointer
+{
+  tier0::create_xz(src, dst, dType::FLOAT, keep_dims);
+  const KernelInfo    kernel = { "variance_projection", kernel::variance_projection_kernel };
+  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 1 }, { "ddof", ddof } };
+  const RangeArray    range = { dst->width(), dst->height(), 1 };
+  execute(device, kernel, params, range);
+  if (keep_dims)
+  {
+    dst = keepdims_y(src, dst);
+  }
+  return dst;
+}
+
+auto
+variance_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof, bool keep_dims) -> Array::Pointer
+{
+  tier0::create_xy(src, dst, dType::FLOAT, keep_dims);
+  const KernelInfo    kernel = { "variance_projection", kernel::variance_projection_kernel };
+  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", 2 }, { "ddof", ddof } };
   const RangeArray    range = { dst->width(), dst->height(), 1 };
   execute(device, kernel, params, range);
   return dst;
