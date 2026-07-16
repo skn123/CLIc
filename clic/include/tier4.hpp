@@ -642,10 +642,23 @@ mode_of_touching_neighbors_map_func(const Device::Pointer & device,
  *
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image. [const Array::Pointer &]
+ * @param ddof Delta degrees of freedom. The divisor used is (n - ddof). [int ( = 0 )]
  * @return float
  */
 auto
-standard_deviation_of_all_pixels_func(const Device::Pointer & device, const Array::Pointer & src) -> float;
+standard_deviation_of_all_pixels_func(const Device::Pointer & device, const Array::Pointer & src, int ddof = 0) -> float;
+
+/**
+ * @name variance_of_all_pixels
+ * @brief Computes the variance of all pixel values in an image.
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image. [const Array::Pointer &]
+ * @param ddof Delta degrees of freedom. The divisor used is (n - ddof). [int ( = 0 )]
+ * @return float
+ */
+auto
+variance_of_all_pixels_func(const Device::Pointer & device, const Array::Pointer & src, int ddof = 0) -> float;
 
 /**
  * @name generate_partial_touching_area_matrix

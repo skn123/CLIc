@@ -2,6 +2,7 @@
 
 #include "test_utils.hpp"
 #include <array>
+#include <cmath>
 #include <gtest/gtest.h>
 #include <random>
 
@@ -48,6 +49,57 @@ TEST_P(TestDirectionalProjections, std_x_projection)
   }
 }
 
+// Test STD projection along X with a delta degrees of freedom (ddof)
+// The divisor used for the variance is (n - ddof) instead of n.
+TEST_P(TestDirectionalProjections, std_x_projection_ddof)
+{
+  constexpr int                width = 5, height = 5, depth = 5;
+  std::array<float, 5 * 5 * 5> input = { 1, 0, 0, 0, 9, 0, 2, 0, 8, 0,  3, 0, 1, 0, 10, 0, 4, 0, 7, 0,  5, 0, 6, 0, 10,
+                                         0, 2, 0, 8, 0, 1, 0, 0, 0, 9,  3, 0, 1, 0, 10, 0, 4, 0, 7, 0,  5, 0, 6, 0, 10,
+                                         0, 2, 0, 8, 0, 3, 0, 1, 0, 10, 0, 4, 0, 7, 0,  1, 0, 0, 0, 9,  5, 0, 6, 0, 10,
+                                         0, 2, 0, 8, 0, 1, 0, 0, 0, 9,  0, 4, 0, 7, 0,  3, 0, 1, 0, 10, 5, 0, 6, 0, 10,
+                                         1, 0, 0, 0, 9, 0, 4, 0, 7, 0,  3, 0, 1, 0, 10, 0, 2, 0, 8, 0,  5, 0, 6, 0, 10 };
+
+  auto gpu_input = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->writeFrom(input.data());
+
+  for (int ddof : { 1, 2 })
+  {
+    // CPU reference: for each (y, z) reduce along x with divisor (n - ddof)
+    std::array<float, 5 * 5 * 1> valid;
+    for (int z = 0; z < depth; ++z)
+    {
+      for (int y = 0; y < height; ++y)
+      {
+        float mean = 0.f;
+        for (int x = 0; x < width; ++x)
+        {
+          mean += input[x + y * width + z * width * height];
+        }
+        mean /= static_cast<float>(width);
+        float m2 = 0.f;
+        for (int x = 0; x < width; ++x)
+        {
+          const float d = input[x + y * width + z * width * height] - mean;
+          m2 += d * d;
+        }
+        const int dof = width - ddof;
+        valid[y + z * height] = (dof > 0) ? std::sqrt(m2 / static_cast<float>(dof)) : 0.f;
+      }
+    }
+
+    std::array<float, 5 * 5 * 1> output;
+    auto                         gpu_output = cle::tier1::std_x_projection_func(device, gpu_input, nullptr, ddof);
+    gpu_output->readTo(output.data());
+
+    for (size_t i = 0; i < output.size(); i++)
+    {
+      EXPECT_NEAR(output[i], valid[i], 0.01);
+    }
+  }
+}
+
+// Test STD projections with static data
 TEST_P(TestDirectionalProjections, std_y_projection)
 {
   std::array<float, 5 * 5 * 1> output;
@@ -422,6 +474,58 @@ TEST_P(TestDirectionalProjections, keep_dims_position_y_projection)
   EXPECT_EQ(gpu_output->height(), 1);
   EXPECT_EQ(gpu_output->depth(), 2);
   EXPECT_EQ(gpu_output->dimension(), 3);
+}
+
+TEST_P(TestDirectionalProjections, product_x_projection)
+{
+  // W=3, H=2, D=2 ; index = x + y*W + z*W*H
+  std::array<float, 3 * 2 * 2> input = { 2, 3, 1, 4, 1, 2, 1, 2, 3, 2, 2, 1 };
+  std::array<float, 2 * 2 * 1> valid = { 6, 8, 6, 4 };
+  std::array<float, 2 * 2 * 1> output;
+
+  auto gpu_input = cle::Array::create(3, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->writeFrom(input.data());
+  auto gpu_output = cle::tier1::product_x_projection_func(device, gpu_input, nullptr);
+  gpu_output->readTo(output.data());
+
+  for (size_t i = 0; i < output.size(); i++)
+  {
+    EXPECT_NEAR(output[i], valid[i], 0.001);
+  }
+}
+
+TEST_P(TestDirectionalProjections, product_y_projection)
+{
+  std::array<float, 3 * 2 * 2> input = { 2, 3, 1, 4, 1, 2, 1, 2, 3, 2, 2, 1 };
+  std::array<float, 3 * 2 * 1> valid = { 8, 3, 2, 2, 4, 3 };
+  std::array<float, 3 * 2 * 1> output;
+
+  auto gpu_input = cle::Array::create(3, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->writeFrom(input.data());
+  auto gpu_output = cle::tier1::product_y_projection_func(device, gpu_input, nullptr);
+  gpu_output->readTo(output.data());
+
+  for (size_t i = 0; i < output.size(); i++)
+  {
+    EXPECT_NEAR(output[i], valid[i], 0.001);
+  }
+}
+
+TEST_P(TestDirectionalProjections, product_z_projection)
+{
+  std::array<float, 3 * 2 * 2> input = { 2, 3, 1, 4, 1, 2, 1, 2, 3, 2, 2, 1 };
+  std::array<float, 3 * 2 * 1> valid = { 2, 6, 3, 8, 2, 2 };
+  std::array<float, 3 * 2 * 1> output;
+
+  auto gpu_input = cle::Array::create(3, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->writeFrom(input.data());
+  auto gpu_output = cle::tier1::product_z_projection_func(device, gpu_input, nullptr);
+  gpu_output->readTo(output.data());
+
+  for (size_t i = 0; i < output.size(); i++)
+  {
+    EXPECT_NEAR(output[i], valid[i], 0.001);
+  }
 }
 
 INSTANTIATE_TEST_SUITE_P(InstantiationName, TestDirectionalProjections, ::testing::ValuesIn(getParameters()));

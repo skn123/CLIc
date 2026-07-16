@@ -1854,6 +1854,7 @@ mode_func(const Device::Pointer & device,
 /**
  * @name modulo_images
  * @brief Computes the remainder of a division of pairwise pixel values in two images
+ * Uses C truncated division, different than Python's floor division.
  *
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src0 First input image to process. [const Array::Pointer &]
@@ -2859,6 +2860,7 @@ square_root_func(const Device::Pointer & device, const Array::Pointer & src, Arr
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param ddof Delta degrees of freedom. The divisor used is (n - ddof). [int ( = 0 )]
  * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
@@ -2866,7 +2868,7 @@ square_root_func(const Device::Pointer & device, const Array::Pointer & src, Arr
  * @see https://clij.github.io/clij2-docs/reference_standardDeviationXProjection
  */
 auto
-std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof = 0, bool keep_dims = false)
   -> Array::Pointer;
 
 
@@ -2877,6 +2879,7 @@ std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param ddof Delta degrees of freedom. The divisor used is (n - ddof). [int ( = 0 )]
  * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
@@ -2884,7 +2887,7 @@ std_x_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @see https://clij.github.io/clij2-docs/reference_standardDeviationYProjection
  */
 auto
-std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof = 0, bool keep_dims = false)
   -> Array::Pointer;
 
 
@@ -2895,6 +2898,7 @@ std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @param device Device to perform the operation on. [const Device::Pointer &]
  * @param src Input image to process. [const Array::Pointer &]
  * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param ddof Delta degrees of freedom. The divisor used is (n - ddof). [int ( = 0 )]
  * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
  * @return Array::Pointer
  *
@@ -2902,8 +2906,71 @@ std_y_projection_func(const Device::Pointer & device, const Array::Pointer & src
  * @see https://clij.github.io/clij2-docs/reference_standardDeviationZProjection
  */
 auto
-std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+std_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int ddof = 0, bool keep_dims = false)
   -> Array::Pointer;
+
+
+/**
+ * @name variance_x_projection
+ * @brief Determines the variance intensity projection of an image stack along X.
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param ddof Delta degrees of freedom. The divisor used is (n - ddof). [int ( = 0 )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'projection'
+ */
+auto
+variance_x_projection_func(const Device::Pointer & device,
+                           const Array::Pointer &  src,
+                           Array::Pointer          dst,
+                           int                     ddof = 0,
+                           bool                    keep_dims = false) -> Array::Pointer;
+
+
+/**
+ * @name variance_y_projection
+ * @brief Determines the variance intensity projection of an image stack along Y.
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param ddof Delta degrees of freedom. The divisor used is (n - ddof). [int ( = 0 )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'projection'
+ */
+auto
+variance_y_projection_func(const Device::Pointer & device,
+                           const Array::Pointer &  src,
+                           Array::Pointer          dst,
+                           int                     ddof = 0,
+                           bool                    keep_dims = false) -> Array::Pointer;
+
+
+/**
+ * @name variance_z_projection
+ * @brief Determines the variance intensity projection of an image stack along Z.
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param ddof Delta degrees of freedom. The divisor used is (n - ddof). [int ( = 0 )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'projection', 'in assistant', 'bia-bob-suggestion'
+ */
+auto
+variance_z_projection_func(const Device::Pointer & device,
+                           const Array::Pointer &  src,
+                           Array::Pointer          dst,
+                           int                     ddof = 0,
+                           bool                    keep_dims = false) -> Array::Pointer;
 
 
 /**
@@ -2992,6 +3059,57 @@ sum_y_projection_func(const Device::Pointer & device, const Array::Pointer & src
  */
 auto
 sum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
+
+
+/**
+ * @name product_x_projection
+ * @brief Determines the product intensity projection of an image along X. <pre>f(y,z) = prod_x(src(x,y,z))</pre>
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'projection'
+ */
+auto
+product_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
+
+
+/**
+ * @name product_y_projection
+ * @brief Determines the product intensity projection of an image along Y. <pre>f(x,z) = prod_y(src(x,y,z))</pre>
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'projection'
+ */
+auto
+product_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
+  -> Array::Pointer;
+
+
+/**
+ * @name product_z_projection
+ * @brief Determines the product intensity projection of an image along Z. <pre>f(x,y) = prod_z(src(x,y,z))</pre>
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param keep_dims If true, the reduced axis is kept as a singleton dimension in the output. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'projection', 'in assistant', 'bia-bob-suggestion'
+ */
+auto
+product_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims = false)
   -> Array::Pointer;
 
 
