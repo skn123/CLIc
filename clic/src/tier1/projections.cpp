@@ -501,19 +501,22 @@ sum_z_projection_func(const Device::Pointer & device, const Array::Pointer & src
 auto
 product_x_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  return axis_projection(device, src, dst, 0, keep_dims, { "product_projection", kernel::product_projection_kernel }, accumulator_type(src));
+  return axis_projection(
+    device, src, dst, 0, keep_dims, { "product_projection", kernel::product_projection_kernel }, accumulator_type(src));
 }
 
 auto
 product_y_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  return axis_projection(device, src, dst, 1, keep_dims, { "product_projection", kernel::product_projection_kernel }, accumulator_type(src));
+  return axis_projection(
+    device, src, dst, 1, keep_dims, { "product_projection", kernel::product_projection_kernel }, accumulator_type(src));
 }
 
 auto
 product_z_projection_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, bool keep_dims) -> Array::Pointer
 {
-  return axis_projection(device, src, dst, 2, keep_dims, { "product_projection", kernel::product_projection_kernel }, accumulator_type(src));
+  return axis_projection(
+    device, src, dst, 2, keep_dims, { "product_projection", kernel::product_projection_kernel }, accumulator_type(src));
 }
 
 auto
