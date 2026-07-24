@@ -355,6 +355,77 @@ circular_shift_func(const Device::Pointer & device, const Array::Pointer & src, 
   -> Array::Pointer;
 
 /**
+ * @name cumulative_sum
+ * @brief Computes the cumulative sum along a given axis. Equivalent to numpy.cumsum with an explicit axis.
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param axis Axis along which to compute the cumulative sum (0=X, 1=Y, 2=Z). [int ( = 0 )]
+ * @param keep_dims If true, keeps the source dimension metadata when creating the destination. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'accumulate', 'in assistant'
+ */
+auto
+cumulative_sum_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int axis = 0, bool keep_dims = false)
+  -> Array::Pointer;
+
+/**
+ * @name cumulative_min
+ * @brief Computes the cumulative minimum along a given axis. Equivalent to numpy.cummin with an explicit axis.
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param axis Axis along which to compute the cumulative minimum (0=X, 1=Y, 2=Z). [int ( = 0 )]
+ * @param keep_dims If true, keeps the source dimension metadata when creating the destination. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'accumulate', 'in assistant'
+ */
+auto
+cumulative_min_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int axis = 0, bool keep_dims = false)
+  -> Array::Pointer;
+
+/**
+ * @name cumulative_max
+ * @brief Computes the cumulative maximum along a given axis. Equivalent to numpy.cummax with an explicit axis.
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param axis Axis along which to compute the cumulative maximum (0=X, 1=Y, 2=Z). [int ( = 0 )]
+ * @param keep_dims If true, keeps the source dimension metadata when creating the destination. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'accumulate', 'in assistant'
+ */
+auto
+cumulative_max_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int axis = 0, bool keep_dims = false)
+  -> Array::Pointer;
+
+/**
+ * @name cumulative_product
+ * @brief Computes the cumulative product along a given axis. Equivalent to numpy.cumprod with an explicit axis.
+ *
+ * @param device Device to perform the operation on. [const Device::Pointer &]
+ * @param src Input image to process. [const Array::Pointer &]
+ * @param dst Output result image. [Array::Pointer ( = None )]
+ * @param axis Axis along which to compute the cumulative product (0=X, 1=Y, 2=Z). [int ( = 0 )]
+ * @param keep_dims If true, keeps the source dimension metadata when creating the destination. [bool ( = False )]
+ * @return Array::Pointer
+ *
+ * @note 'accumulate', 'in assistant'
+ */
+auto
+cumulative_product_func(const Device::Pointer & device,
+                        const Array::Pointer &  src,
+                        Array::Pointer          dst,
+                        int                     axis = 0,
+                        bool                    keep_dims = false) -> Array::Pointer;
+
+/**
  * @name convolve
  * @brief Convolve the image with a given kernel image. It is recommended that the kernel image has an odd size in X, Y
  * and Z.

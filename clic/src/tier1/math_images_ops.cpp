@@ -118,7 +118,7 @@ auto
 smaller_func(const Device::Pointer & device, const Array::Pointer & src0, const Array::Pointer & src1, Array::Pointer dst) -> Array::Pointer
 {
   tier0::create_like(src0, dst, dType::BOOL);
-return apply_images_math_operation(device, src0, src1, dst, "(x < y) ? 1 : 0");
+  return apply_images_math_operation(device, src0, src1, dst, "(x < y) ? 1 : 0");
 }
 
 auto
