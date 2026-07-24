@@ -368,11 +368,8 @@ circular_shift_func(const Device::Pointer & device, const Array::Pointer & src, 
  * @note 'accumulate', 'in assistant'
  */
 auto
-cumulative_sum_func(const Device::Pointer & device,
-                    const Array::Pointer &  src,
-                    Array::Pointer          dst,
-                    int                     axis = 0,
-                    bool                    keep_dims = false) -> Array::Pointer;
+cumulative_sum_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int axis = 0, bool keep_dims = false)
+  -> Array::Pointer;
 
 /**
  * @name cumulative_min
@@ -388,11 +385,8 @@ cumulative_sum_func(const Device::Pointer & device,
  * @note 'accumulate', 'in assistant'
  */
 auto
-cumulative_min_func(const Device::Pointer & device,
-                    const Array::Pointer &  src,
-                    Array::Pointer          dst,
-                    int                     axis = 0,
-                    bool                    keep_dims = false) -> Array::Pointer;
+cumulative_min_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int axis = 0, bool keep_dims = false)
+  -> Array::Pointer;
 
 /**
  * @name cumulative_max
@@ -408,11 +402,8 @@ cumulative_min_func(const Device::Pointer & device,
  * @note 'accumulate', 'in assistant'
  */
 auto
-cumulative_max_func(const Device::Pointer & device,
-                    const Array::Pointer &  src,
-                    Array::Pointer          dst,
-                    int                     axis = 0,
-                    bool                    keep_dims = false) -> Array::Pointer;
+cumulative_max_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int axis = 0, bool keep_dims = false)
+  -> Array::Pointer;
 
 /**
  * @name cumulative_product

@@ -154,12 +154,12 @@ protected:
 
 TEST_P(TestAccumulate, cumulative_sum_all_axes)
 {
-  constexpr int             width = 3;
-  constexpr int             height = 2;
-  constexpr int             depth = 2;
-  const std::vector<float>  input = { 3, 1, 4, 2, 5, 0, 6, 2, 7, 1, 8, 3 };
-  std::vector<float>        output(input.size());
-  const auto                gpu_input = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  constexpr int            width = 3;
+  constexpr int            height = 2;
+  constexpr int            depth = 2;
+  const std::vector<float> input = { 3, 1, 4, 2, 5, 0, 6, 2, 7, 1, 8, 3 };
+  std::vector<float>       output(input.size());
+  const auto               gpu_input = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
   gpu_input->writeFrom(input.data());
 
   for (int axis = 0; axis < 3; ++axis)
@@ -177,12 +177,12 @@ TEST_P(TestAccumulate, cumulative_sum_all_axes)
 
 TEST_P(TestAccumulate, cumulative_min_all_axes)
 {
-  constexpr int             width = 3;
-  constexpr int             height = 2;
-  constexpr int             depth = 2;
-  const std::vector<float>  input = { 3, 1, 4, 2, 5, 0, 6, 2, 7, 1, 8, 3 };
-  std::vector<float>        output(input.size());
-  const auto                gpu_input = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  constexpr int            width = 3;
+  constexpr int            height = 2;
+  constexpr int            depth = 2;
+  const std::vector<float> input = { 3, 1, 4, 2, 5, 0, 6, 2, 7, 1, 8, 3 };
+  std::vector<float>       output(input.size());
+  const auto               gpu_input = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
   gpu_input->writeFrom(input.data());
 
   for (int axis = 0; axis < 3; ++axis)
@@ -200,12 +200,12 @@ TEST_P(TestAccumulate, cumulative_min_all_axes)
 
 TEST_P(TestAccumulate, cumulative_max_all_axes)
 {
-  constexpr int             width = 3;
-  constexpr int             height = 2;
-  constexpr int             depth = 2;
-  const std::vector<float>  input = { 3, 1, 4, 2, 5, 0, 6, 2, 7, 1, 8, 3 };
-  std::vector<float>        output(input.size());
-  const auto                gpu_input = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  constexpr int            width = 3;
+  constexpr int            height = 2;
+  constexpr int            depth = 2;
+  const std::vector<float> input = { 3, 1, 4, 2, 5, 0, 6, 2, 7, 1, 8, 3 };
+  std::vector<float>       output(input.size());
+  const auto               gpu_input = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
   gpu_input->writeFrom(input.data());
 
   for (int axis = 0; axis < 3; ++axis)
@@ -223,12 +223,12 @@ TEST_P(TestAccumulate, cumulative_max_all_axes)
 
 TEST_P(TestAccumulate, cumulative_product_all_axes)
 {
-  constexpr int             width = 3;
-  constexpr int             height = 2;
-  constexpr int             depth = 2;
-  const std::vector<float>  input = { 3, 1, 4, 2, 5, 2, 6, 2, 7, 1, 8, 3 };
-  std::vector<float>        output(input.size());
-  const auto                gpu_input = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  constexpr int            width = 3;
+  constexpr int            height = 2;
+  constexpr int            depth = 2;
+  const std::vector<float> input = { 3, 1, 4, 2, 5, 2, 6, 2, 7, 1, 8, 3 };
+  std::vector<float>       output(input.size());
+  const auto               gpu_input = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
   gpu_input->writeFrom(input.data());
 
   for (int axis = 0; axis < 3; ++axis)

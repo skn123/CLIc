@@ -47,9 +47,9 @@ TEST_P(TestPower, execute_w_float)
 TEST_P(TestPower, execute_w_int)
 {
 
-  std::array<float, 10 * 5 * 3> output;
+  std::array<float, 10 * 5 * 3>   output;
   std::array<int32_t, 10 * 5 * 3> input;
-  std::array<float, 10 * 5 * 3> valid;
+  std::array<float, 10 * 5 * 3>   valid;
 
   std::fill(input.begin(), input.end(), static_cast<int32_t>(value));
   std::fill(valid.begin(), valid.end(), static_cast<float>(std::pow(value, exp)));

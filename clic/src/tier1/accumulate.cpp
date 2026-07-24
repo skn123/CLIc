@@ -67,95 +67,95 @@ namespace
 {
 enum class CumulativeOperation : int
 {
-	SUM = 0,
-	MIN = 1,
-	MAX = 2,
-	PRODUCT = 3,
+  SUM = 0,
+  MIN = 1,
+  MAX = 2,
+  PRODUCT = 3,
 };
 
 auto
 accumulator_type(const Array::Pointer & src) -> dType
 {
-	switch (src->dtype())
-	{
-		case dType::INT8:
-		case dType::INT16:
-		case dType::INT32:
-			return dType::INT32;
-		case dType::UINT8:
-		case dType::UINT16:
-		case dType::UINT32:
-			return dType::UINT32;
-		default:
-			return dType::FLOAT;
-	}
+  switch (src->dtype())
+  {
+    case dType::INT8:
+    case dType::INT16:
+    case dType::INT32:
+      return dType::INT32;
+    case dType::UINT8:
+    case dType::UINT16:
+    case dType::UINT32:
+      return dType::UINT32;
+    default:
+      return dType::FLOAT;
+  }
 }
 
 auto
 cumulative_axis(const Device::Pointer & device,
-								const Array::Pointer &  src,
-								Array::Pointer          dst,
-								int                     axis,
-								bool                    keep_dims,
-								CumulativeOperation     operation,
-								dType                   type) -> Array::Pointer
+                const Array::Pointer &  src,
+                Array::Pointer          dst,
+                int                     axis,
+                bool                    keep_dims,
+                CumulativeOperation     operation,
+                dType                   type) -> Array::Pointer
 {
-	if (axis < 0 || axis > 2)
-	{
-		throw std::invalid_argument("Error: axis must be 0 (X), 1 (Y), or 2 (Z).");
-	}
+  if (axis < 0 || axis > 2)
+  {
+    throw std::invalid_argument("Error: axis must be 0 (X), 1 (Y), or 2 (Z).");
+  }
 
-	tier0::create_dst(src, dst, src->width(), src->height(), src->depth(), type, keep_dims);
+  tier0::create_dst(src, dst, src->width(), src->height(), src->depth(), type, keep_dims);
 
-	const KernelInfo    kernel = { "cumulative_axis", kernel::cumulative_axis_kernel };
-	const int           op_value = static_cast<int>(operation);
-	const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", axis }, { "op", op_value } };
+  const KernelInfo    kernel = { "cumulative_axis", kernel::cumulative_axis_kernel };
+  const int           op_value = static_cast<int>(operation);
+  const ParameterList params = { { "src", src }, { "dst", dst }, { "axis", axis }, { "op", op_value } };
 
-	RangeArray range;
-	if (axis == 0)
-	{
-		range = { src->height(), src->depth(), 1 };
-	}
-	else if (axis == 1)
-	{
-		range = { src->width(), src->depth(), 1 };
-	}
-	else
-	{
-		range = { src->width(), src->height(), 1 };
-	}
+  RangeArray range;
+  if (axis == 0)
+  {
+    range = { src->height(), src->depth(), 1 };
+  }
+  else if (axis == 1)
+  {
+    range = { src->width(), src->depth(), 1 };
+  }
+  else
+  {
+    range = { src->width(), src->height(), 1 };
+  }
 
-	execute(device, kernel, params, range);
-	return dst;
+  execute(device, kernel, params, range);
+  return dst;
 }
 } // namespace
 
 auto
 cumulative_sum_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int axis, bool keep_dims)
-	-> Array::Pointer
+  -> Array::Pointer
 {
-	return cumulative_axis(device, src, dst, axis, keep_dims, CumulativeOperation::SUM, accumulator_type(src));
+  return cumulative_axis(device, src, dst, axis, keep_dims, CumulativeOperation::SUM, accumulator_type(src));
 }
 
 auto
 cumulative_min_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int axis, bool keep_dims)
-	-> Array::Pointer
+  -> Array::Pointer
 {
-	return cumulative_axis(device, src, dst, axis, keep_dims, CumulativeOperation::MIN, dType::UNKNOWN);
+  return cumulative_axis(device, src, dst, axis, keep_dims, CumulativeOperation::MIN, dType::UNKNOWN);
 }
 
 auto
 cumulative_max_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int axis, bool keep_dims)
-	-> Array::Pointer
+  -> Array::Pointer
 {
-	return cumulative_axis(device, src, dst, axis, keep_dims, CumulativeOperation::MAX, dType::UNKNOWN);
+  return cumulative_axis(device, src, dst, axis, keep_dims, CumulativeOperation::MAX, dType::UNKNOWN);
 }
 
 auto
 cumulative_product_func(const Device::Pointer & device, const Array::Pointer & src, Array::Pointer dst, int axis, bool keep_dims)
-	-> Array::Pointer
+  -> Array::Pointer
 {
-	return cumulative_axis(device, src, dst, axis, keep_dims, CumulativeOperation::PRODUCT, accumulator_type(src));
+  return cumulative_axis(device, src, dst, axis, keep_dims, CumulativeOperation::PRODUCT, accumulator_type(src));
 }
 
 } // namespace cle::tier1
