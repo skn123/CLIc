@@ -41,13 +41,13 @@ apply_images_math_operation(const Device::Pointer & device,
                             Array::Pointer          dst,
                             const std::string &     op_define) -> Array::Pointer
 {
-  const KernelInfo    kernel_info = { "image_operation", kernel_source };
-  ParameterList       params;
+  const KernelInfo kernel_info = { "image_operation", kernel_source };
+  ParameterList    params;
   params.emplace_back("src0", src0);
   params.emplace_back("src1", src1);
   params.emplace_back("dst", dst);
-  const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
-  ConstantList        constants;
+  const RangeArray range = { dst->width(), dst->height(), dst->depth() };
+  ConstantList     constants;
   constants.emplace_back("APPLY_OP(x,y)", op_define);
   execute(device, kernel_info, params, range, { 0, 0, 0 }, constants);
   return dst;

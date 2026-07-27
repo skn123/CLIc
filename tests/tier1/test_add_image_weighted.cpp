@@ -59,13 +59,8 @@ TEST_P(TestAddImagesWeighted, broadcast_src1_over_width_and_depth)
   constexpr float  f1 = 2.0f;
   constexpr float  f2 = 0.5f;
 
-  std::array<float, width * height * depth> src0_data = {
-    1, 2, 3, 4,
-    5, 6, 7, 8,
-    9, 10, 11, 12,
-    13, 14, 15, 16
-  };
-  std::array<float, height> src1_data = { 10.0f, 20.0f };
+  std::array<float, width * height * depth> src0_data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+  std::array<float, height>                 src1_data = { 10.0f, 20.0f };
 
   auto src0 = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
   auto src1 = cle::Array::create(1, height, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
@@ -107,13 +102,8 @@ TEST_P(TestAddImagesWeighted, broadcast_src0_over_width_and_depth)
   constexpr float  f1 = 2.0f;
   constexpr float  f2 = 0.5f;
 
-  std::array<float, height> src0_data = { 1.0f, 3.0f };
-  std::array<float, width * height * depth> src1_data = {
-    2, 4, 6, 8,
-    1, 3, 5, 7,
-    10, 20, 30, 40,
-    9, 8, 7, 6
-  };
+  std::array<float, height>                 src0_data = { 1.0f, 3.0f };
+  std::array<float, width * height * depth> src1_data = { 2, 4, 6, 8, 1, 3, 5, 7, 10, 20, 30, 40, 9, 8, 7, 6 };
 
   auto src0 = cle::Array::create(1, height, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
   auto src1 = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
@@ -152,10 +142,12 @@ TEST_P(TestAddImagesWeighted, incompatible_shapes_throw)
   auto src0 = cle::Array::create(4, 2, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
   auto src1 = cle::Array::create(3, 2, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
 
-  EXPECT_THROW({
-    auto out = cle::tier1::add_images_weighted_func(device, src0, src1, nullptr, 1.0f, 1.0f);
-    (void) out;
-  }, std::invalid_argument);
+  EXPECT_THROW(
+    {
+      auto out = cle::tier1::add_images_weighted_func(device, src0, src1, nullptr, 1.0f, 1.0f);
+      (void)out;
+    },
+    std::invalid_argument);
 }
 
 INSTANTIATE_TEST_SUITE_P(InstantiationName, TestAddImagesWeighted, ::testing::ValuesIn(getParameters()));

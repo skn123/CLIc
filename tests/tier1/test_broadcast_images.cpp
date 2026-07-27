@@ -26,14 +26,7 @@ TEST_P(TestBroadcastImages, maximum_images_broadcast_row_and_depth)
   constexpr size_t height = 3;
   constexpr size_t depth = 2;
 
-  std::array<float, width * height * depth> src0_data = {
-    0, 1, 2, 3,
-    1, 2, 3, 4,
-    2, 3, 4, 5,
-    3, 4, 5, 6,
-    4, 5, 6, 7,
-    5, 6, 7, 8
-  };
+  std::array<float, width * height * depth> src0_data = { 0, 1, 2, 3, 1, 2, 3, 4, 2, 3, 4, 5, 3, 4, 5, 6, 4, 5, 6, 7, 5, 6, 7, 8 };
 
   // Shape (1, 3, 1): broadcasts over width and depth.
   std::array<float, 3> src1_data = { 2, 4, 6 };
@@ -72,12 +65,7 @@ TEST_P(TestBroadcastImages, greater_func_broadcast_depth_vector)
   constexpr size_t height = 2;
   constexpr size_t depth = 2;
 
-  std::array<int8_t, width * height * depth> src0_data = {
-    1, 2, 3,
-    4, 5, 6,
-    3, 2, 1,
-    6, 5, 4
-  };
+  std::array<int8_t, width * height * depth> src0_data = { 1, 2, 3, 4, 5, 6, 3, 2, 1, 6, 5, 4 };
 
   // Shape (1, 1, 2): broadcasts over width and height.
   std::array<int8_t, depth> src1_data = { 2, 4 };
@@ -115,10 +103,12 @@ TEST_P(TestBroadcastImages, incompatible_shapes_throw)
   auto gpu_src0 = cle::Array::create(4, 3, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
   auto gpu_src1 = cle::Array::create(5, 3, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
 
-  EXPECT_THROW({
-    auto out = cle::tier1::maximum_images_func(device, gpu_src0, gpu_src1, nullptr);
-    (void) out;
-  }, std::invalid_argument);
+  EXPECT_THROW(
+    {
+      auto out = cle::tier1::maximum_images_func(device, gpu_src0, gpu_src1, nullptr);
+      (void)out;
+    },
+    std::invalid_argument);
 }
 
 INSTANTIATE_TEST_SUITE_P(InstantiationName, TestBroadcastImages, ::testing::ValuesIn(getParameters()));

@@ -358,7 +358,8 @@ create_or_check_broadcast_dst(const Array::Pointer & src0, const Array::Pointer 
   {
     throw std::invalid_argument("Error: provided 'dst' extents (" + std::to_string(dst->width()) + "," + std::to_string(dst->height()) +
                                 "," + std::to_string(dst->depth()) + ") do not match the broadcasted extents (" +
-                                std::to_string(out_shape[0]) + "," + std::to_string(out_shape[1]) + "," + std::to_string(out_shape[2]) + ").");
+                                std::to_string(out_shape[0]) + "," + std::to_string(out_shape[1]) + "," + std::to_string(out_shape[2]) +
+                                ").");
   }
 }
 

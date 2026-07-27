@@ -645,8 +645,8 @@ evaluate(const Device::Pointer &            device,
   const auto broadcast_shape = tier0::infer_broadcast_shape(array_inputs);
   if (output->width() != broadcast_shape[0] || output->height() != broadcast_shape[1] || output->depth() != broadcast_shape[2])
   {
-    throw std::invalid_argument("Error: output shape (" + std::to_string(output->width()) + "," + std::to_string(output->height()) +
-                                "," + std::to_string(output->depth()) + ") does not match broadcasted shape (" +
+    throw std::invalid_argument("Error: output shape (" + std::to_string(output->width()) + "," + std::to_string(output->height()) + "," +
+                                std::to_string(output->depth()) + ") does not match broadcasted shape (" +
                                 std::to_string(broadcast_shape[0]) + "," + std::to_string(broadcast_shape[1]) + "," +
                                 std::to_string(broadcast_shape[2]) + ") in evaluate().");
   }

@@ -156,10 +156,7 @@ infer_broadcast_shape(const std::vector<Array::Pointer> & arrays) -> std::array<
  * @return void
  */
 auto
-create_or_check_broadcast_dst(const Array::Pointer & src0,
-                              const Array::Pointer & src1,
-                              Array::Pointer &       dst,
-                              dType                  output_type) -> void;
+create_or_check_broadcast_dst(const Array::Pointer & src0, const Array::Pointer & src1, Array::Pointer & dst, dType output_type) -> void;
 
 
 } // namespace cle::tier0

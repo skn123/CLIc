@@ -215,13 +215,8 @@ TEST_P(TestEvaluate, broadcastSecondArray)
   auto b = cle::Array::create(1, 2, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
   auto out = cle::Array::create(4, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
 
-  std::array<float, 16> a_data = {
-    1, 2, 3, 4,
-    5, 6, 7, 8,
-    9, 10, 11, 12,
-    13, 14, 15, 16
-  };
-  std::array<float, 2> b_data = { 10.0f, 20.0f };
+  std::array<float, 16> a_data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+  std::array<float, 2>  b_data = { 10.0f, 20.0f };
   a->writeFrom(a_data.data());
   b->writeFrom(b_data.data());
 
@@ -248,13 +243,8 @@ TEST_P(TestEvaluate, broadcastFirstArray)
   auto b = cle::Array::create(4, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
   auto out = cle::Array::create(4, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
 
-  std::array<float, 2> a_data = { 3.0f, 5.0f };
-  std::array<float, 16> b_data = {
-    1, 2, 3, 4,
-    5, 6, 7, 8,
-    9, 10, 11, 12,
-    13, 14, 15, 16
-  };
+  std::array<float, 2>  a_data = { 3.0f, 5.0f };
+  std::array<float, 16> b_data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
   a->writeFrom(a_data.data());
   b->writeFrom(b_data.data());
 
@@ -281,9 +271,7 @@ TEST_P(TestEvaluate, incompatibleBroadcastShapesThrow)
   auto b = cle::Array::create(3, 2, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
   auto out = cle::Array::create(4, 2, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
 
-  EXPECT_THROW({
-    cle::evaluate(device, "a + b", { a, b }, out);
-  }, std::invalid_argument);
+  EXPECT_THROW({ cle::evaluate(device, "a + b", { a, b }, out); }, std::invalid_argument);
 }
 
 INSTANTIATE_TEST_SUITE_P(InstantiationName, TestEvaluate, ::testing::ValuesIn(getParameters()));
