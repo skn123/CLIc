@@ -304,4 +304,118 @@ TEST_P(TestArray, throwErrors)
   auto array_other = cle::Array::create(5, 20, 30, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
   EXPECT_THROW(array->copyTo(array_other), std::runtime_error);
 }
+TEST_P(TestArray, stridesMetadata)
+{
+  auto array = cle::Array::create(10, 20, 30, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+
+  EXPECT_EQ(array->strides()[0], 1);
+  EXPECT_EQ(array->strides()[1], 10);
+  EXPECT_EQ(array->strides()[2], 200);
+  EXPECT_EQ(array->offset(), 0);
+  EXPECT_TRUE(array->isContiguous());
+
+  auto shallow = array->shallow_copy();
+  EXPECT_EQ(shallow->strides(), array->strides());
+  EXPECT_EQ(shallow->offset(), 0);
+  EXPECT_TRUE(shallow->isContiguous());
+
+  auto reshaped = array->reshape(20, 30, 10);
+  EXPECT_EQ(reshaped->strides()[0], 1);
+  EXPECT_EQ(reshaped->strides()[1], 20);
+  EXPECT_EQ(reshaped->strides()[2], 600);
+  EXPECT_TRUE(reshaped->isContiguous());
+}
+
+TEST_P(TestArray, viewMetadata)
+{
+  auto array = cle::Array::create(10, 20, 30, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+
+  auto view = array->view({ 2, 3, 4 }, { 5, 6, 7 });
+  EXPECT_EQ(view->width(), 5);
+  EXPECT_EQ(view->height(), 6);
+  EXPECT_EQ(view->depth(), 7);
+  EXPECT_EQ(view->strides(), array->strides());
+  EXPECT_EQ(view->offset(), 2 + 3 * 10 + 4 * 200);
+  EXPECT_FALSE(view->isContiguous());
+  EXPECT_EQ(view->get_ptr(), array->get_ptr());
+
+  EXPECT_THROW(array->view({ 6, 0, 0 }, { 5, 1, 1 }), std::runtime_error);
+  EXPECT_THROW(array->view({ 0, 0, 0 }, { 0, 1, 1 }), std::runtime_error);
+  EXPECT_THROW(view->reshape(6, 5, 7), std::runtime_error);
+
+  auto uninitialized = cle::Array::New();
+  EXPECT_THROW(uninitialized->view({ 0, 0, 0 }, { 1, 1, 1 }), std::runtime_error);
+}
+
+TEST_P(TestArray, viewReadWrite)
+{
+  std::array<float, 7 * 7> data;
+  for (int i = 0; i < 7 * 7; i++)
+  {
+    data[i] = static_cast<float>(i);
+  }
+  auto array = cle::Array::create(7, 7, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, data.data(), device);
+
+  auto                  view = array->view({ 1, 1, 0 }, { 5, 2, 1 });
+  std::array<float, 10> read_data;
+  view->readTo(read_data.data());
+  for (int y = 0; y < 2; y++)
+  {
+    for (int x = 0; x < 5; x++)
+    {
+      EXPECT_EQ(read_data[y * 5 + x], static_cast<float>((y + 1) * 7 + (x + 1)));
+    }
+  }
+
+  std::array<float, 10> new_values;
+  new_values.fill(-1.0f);
+  view->writeFrom(new_values.data());
+
+  std::array<float, 7 * 7> full;
+  array->readTo(full.data());
+  for (int y = 0; y < 7; y++)
+  {
+    for (int x = 0; x < 7; x++)
+    {
+      const bool in_view = (x >= 1 && x < 6 && y >= 1 && y < 3);
+      EXPECT_EQ(full[y * 7 + x], in_view ? -1.0f : static_cast<float>(y * 7 + x));
+    }
+  }
+}
+
+TEST_P(TestArray, viewCopyAndFill)
+{
+  std::array<float, 7 * 7> data;
+  for (int i = 0; i < 7 * 7; i++)
+  {
+    data[i] = static_cast<float>(i);
+  }
+  auto array = cle::Array::create(7, 7, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, data.data(), device);
+  auto view = array->view({ 2, 3, 0 }, { 4, 3, 1 });
+
+  auto dst = cle::Array::create(4, 3, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  view->copyTo(dst);
+  std::array<float, 12> copied;
+  dst->readTo(copied.data());
+  for (int y = 0; y < 3; y++)
+  {
+    for (int x = 0; x < 4; x++)
+    {
+      EXPECT_EQ(copied[y * 4 + x], static_cast<float>((y + 3) * 7 + (x + 2)));
+    }
+  }
+
+  view->fill(42.0f);
+  std::array<float, 7 * 7> full;
+  array->readTo(full.data());
+  for (int y = 0; y < 7; y++)
+  {
+    for (int x = 0; x < 7; x++)
+    {
+      const bool in_view = (x >= 2 && x < 6 && y >= 3 && y < 6);
+      EXPECT_EQ(full[y * 7 + x], in_view ? 42.0f : static_cast<float>(y * 7 + x));
+    }
+  }
+}
+
 INSTANTIATE_TEST_SUITE_P(InstantiationName, TestArray, ::testing::ValuesIn(getParameters()));

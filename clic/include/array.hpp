@@ -97,6 +97,17 @@ public:
   shallow_copy() const -> Array::Pointer;
 
   /**
+   * @brief Create a rectangular sub-view of the Array, sharing the same device memory (no copy)
+   *        The view is defined by an origin and a region (in elements) relative to this Array.
+   *        Only supported for BUFFER memory type.
+   * @param origin origin of the view (x, y, z) in the array
+   * @param region region of the view (width, height, depth)
+   * @return Array::Pointer
+   */
+  auto
+  view(const std::array<size_t, 3> & origin, const std::array<size_t, 3> & region) const -> Array::Pointer;
+
+  /**
    * @brief operator << to print the Array::Pointer
    */
   friend auto
@@ -223,6 +234,28 @@ public:
   depth() const -> size_t;
 
   /**
+   * @brief Get the strides of the Array (in elements), for the x, y and z axes
+   *        For a contiguous Array, strides are { 1, width, width * height }
+   * @return const std::array<size_t, 3> &
+   */
+  [[nodiscard]] auto
+  strides() const -> const std::array<size_t, 3> &;
+
+  /**
+   * @brief Get the offset of the Array (in elements) from the start of the device memory buffer
+   * @return size_t
+   */
+  [[nodiscard]] auto
+  offset() const -> size_t;
+
+  /**
+   * @brief Check if the Array memory layout is contiguous (dense, row-major)
+   * @return bool
+   */
+  [[nodiscard]] auto
+  isContiguous() const -> bool;
+
+  /**
    * @brief Get the item size of the Array (bytes)
    * @return size_t
    */
@@ -329,8 +362,6 @@ public:
   syncToStream(int64_t consumer_stream) const -> void;
 
 private:
-  // using MemoryPointer = std::shared_ptr<void *>;
-
   /**
    * @brief Default constructor
    */
@@ -359,10 +390,53 @@ private:
         const std::shared_ptr<void> & gpu_data,
         const Device::Pointer &       device_ptr);
 
-  size_t                dim_ = 1;
+  /**
+   * @brief Compute the default contiguous strides ({ 1, width, width * height }) for the current
+   *        shape and reset the offset to zero
+   */
+  auto
+  resetStridesToContiguous() -> void;
+
+  /**
+   * @brief Compute the physical buffer layout (shape and origin) of the Array in its underlying
+   *        device memory buffer, from its strides and offset. Used to feed backend rect operations.
+   *        Throws if the layout cannot be expressed as a pitched (rectangular) layout.
+   * @param shape output physical buffer shape (row pitch, slice pitch / row pitch, depth extent)
+   * @param origin output origin (x, y, z) of the Array in the buffer
+   */
+  auto
+  bufferLayout(std::array<size_t, 3> & shape, std::array<size_t, 3> & origin) const -> void;
+
+  /**
+   * @brief Resolve the physical buffer shape and origin for a host transfer, folding the given
+   *        user buffer origin on top of the Array view base (from strides and offset)
+   * @param buffer_origin user-provided origin (x, y, z) relative to the Array
+   * @param shape output physical buffer shape fed to backend rect operations
+   * @param origin output physical origin (view base + buffer_origin)
+   */
+  auto
+  resolveBufferAccess(const std::array<size_t, 3> & buffer_origin, std::array<size_t, 3> & shape, std::array<size_t, 3> & origin) const
+    -> void;
+
+  /**
+   * @brief Dispatch a device-to-device copy to the appropriate backend routine based on the
+   *        source and destination memory types. Shapes, origins and region are pre-computed by
+   *        the caller. Throws for non-contiguous BUFFER<->IMAGE copies and mismatched memory types.
+   */
+  auto
+  dispatchCopy(const Array::Pointer &        dst,
+               const std::array<size_t, 3> & src_origin,
+               const std::array<size_t, 3> & src_shape,
+               const std::array<size_t, 3> & dst_origin,
+               const std::array<size_t, 3> & dst_shape,
+               const std::array<size_t, 3> & region) const -> void;
+
   size_t                width_ = 1;
   size_t                height_ = 1;
   size_t                depth_ = 1;
+  size_t                dim_ = 1;
+  std::array<size_t, 3> strides_ = { 1, 1, 1 };
+  size_t                offset_ = 0;
   dType                 dataType_ = dType::FLOAT;
   mType                 memType_ = mType::BUFFER;
   Device::Pointer       device_ = nullptr;
@@ -392,15 +466,15 @@ print(const Array::Pointer & array, const char * name = "Array::Pointer") -> voi
   array->readTo(host_data.data());
   std::ostringstream oss;
   oss << name << ":\n";
-  for (auto i = 0; i < array->depth(); ++i)
+  for (size_t i = 0; i < array->depth(); ++i)
   {
     if (array->depth() > 1)
     {
       oss << "z = " << i << '\n';
     }
-    for (auto j = 0; j < array->height(); ++j)
+    for (size_t j = 0; j < array->height(); ++j)
     {
-      for (auto k = 0; k < array->width(); ++k)
+      for (size_t k = 0; k < array->width(); ++k)
       {
         oss << static_cast<float>(host_data[i * array->height() * array->width() + j * array->width() + k]) << ' ';
       }

@@ -191,6 +191,10 @@ marshalParameters(const ParameterList & parameters, std::vector<std::shared_ptr<
   {
     if (const auto * arr = std::get_if<Array::Pointer>(&value))
     {
+      if (*arr != nullptr && (!(*arr)->isContiguous() || (*arr)->offset() != 0))
+      {
+        throw std::runtime_error("Error: Array views are not yet supported in kernel execution (parameter '" + key + "')");
+      }
       args_ptr.push_back((*arr)->get_ptr());
       args_size.push_back(GPU_MEM_PTR_SIZE);
     }
