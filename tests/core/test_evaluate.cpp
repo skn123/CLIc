@@ -208,4 +208,82 @@ TEST_P(TestEvaluate, powerAlias)
     EXPECT_FLOAT_EQ(result[i], 9.0f);
   }
 }
+
+TEST_P(TestEvaluate, broadcastSecondArray)
+{
+  auto a = cle::Array::create(4, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  auto b = cle::Array::create(1, 2, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  auto out = cle::Array::create(4, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+
+  std::array<float, 16> a_data = {
+    1, 2, 3, 4,
+    5, 6, 7, 8,
+    9, 10, 11, 12,
+    13, 14, 15, 16
+  };
+  std::array<float, 2> b_data = { 10.0f, 20.0f };
+  a->writeFrom(a_data.data());
+  b->writeFrom(b_data.data());
+
+  cle::evaluate(device, "a + b", { a, b }, out);
+
+  std::array<float, 16> result = { 0 };
+  out->readTo(result.data());
+  for (size_t z = 0; z < 2; ++z)
+  {
+    for (size_t y = 0; y < 2; ++y)
+    {
+      for (size_t x = 0; x < 4; ++x)
+      {
+        const size_t idx = z * 8 + y * 4 + x;
+        EXPECT_FLOAT_EQ(result[idx], a_data[idx] + b_data[y]);
+      }
+    }
+  }
+}
+
+TEST_P(TestEvaluate, broadcastFirstArray)
+{
+  auto a = cle::Array::create(1, 2, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  auto b = cle::Array::create(4, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  auto out = cle::Array::create(4, 2, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+
+  std::array<float, 2> a_data = { 3.0f, 5.0f };
+  std::array<float, 16> b_data = {
+    1, 2, 3, 4,
+    5, 6, 7, 8,
+    9, 10, 11, 12,
+    13, 14, 15, 16
+  };
+  a->writeFrom(a_data.data());
+  b->writeFrom(b_data.data());
+
+  cle::evaluate(device, "a * 2 + b", { a, b }, out);
+
+  std::array<float, 16> result = { 0 };
+  out->readTo(result.data());
+  for (size_t z = 0; z < 2; ++z)
+  {
+    for (size_t y = 0; y < 2; ++y)
+    {
+      for (size_t x = 0; x < 4; ++x)
+      {
+        const size_t idx = z * 8 + y * 4 + x;
+        EXPECT_FLOAT_EQ(result[idx], a_data[y] * 2.0f + b_data[idx]);
+      }
+    }
+  }
+}
+
+TEST_P(TestEvaluate, incompatibleBroadcastShapesThrow)
+{
+  auto a = cle::Array::create(4, 2, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  auto b = cle::Array::create(3, 2, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  auto out = cle::Array::create(4, 2, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
+
+  EXPECT_THROW({
+    cle::evaluate(device, "a + b", { a, b }, out);
+  }, std::invalid_argument);
+}
+
 INSTANTIATE_TEST_SUITE_P(InstantiationName, TestEvaluate, ::testing::ValuesIn(getParameters()));

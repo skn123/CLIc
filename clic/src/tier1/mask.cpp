@@ -13,7 +13,7 @@ namespace cle::tier1
 auto
 mask_func(const Device::Pointer & device, const Array::Pointer & src, const Array::Pointer & mask, Array::Pointer dst) -> Array::Pointer
 {
-  tier0::create_like(src, dst);
+  tier0::create_or_check_broadcast_dst(src, mask, dst, src->dtype());
   const KernelInfo    kernel = { "mask", kernel::mask };
   const ParameterList params = { { "src0", src }, { "src1", mask }, { "dst", dst } };
   const RangeArray    range = { dst->width(), dst->height(), dst->depth() };
