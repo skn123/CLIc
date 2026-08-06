@@ -351,7 +351,9 @@ create_or_check_broadcast_dst(const Array::Pointer & src0, const Array::Pointer 
   }
 
   const auto out_shape = infer_broadcast_shape(src0, src1);
-  const auto out_dim = shape_to_dimension(out_shape[0], out_shape[1], out_shape[2]);
+  // preserve logical rank (numpy-style: max of operand ranks) instead of
+  // re-inferring from shape, which would squeeze away leading size-1 axes
+  const unsigned int out_dim = src0->dimension() > src1->dimension() ? src0->dimension() : src1->dimension();
 
   if (dst == nullptr)
   {
