@@ -160,6 +160,24 @@ TEST_P(TestCreate, create_vector)
   EXPECT_EQ(output->dtype(), input->dtype());
 }
 
+TEST_P(TestCreate, create_or_check_broadcast_dst)
+{
+  auto src0 = cle::Array::create(4, 3, 2, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  auto src1 = cle::Array::create(1, 3, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
+
+  cle::tier0::create_or_check_broadcast_dst(src0, src1, output, cle::dType::FLOAT);
+
+  EXPECT_EQ(output->device(), src0->device());
+  EXPECT_EQ(output->width(), 4);
+  EXPECT_EQ(output->height(), 3);
+  EXPECT_EQ(output->depth(), 2);
+  EXPECT_EQ(output->dimension(), 3);
+  EXPECT_EQ(output->dtype(), cle::dType::FLOAT);
+
+  output = cle::Array::create(4, 3, 2, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  EXPECT_ANY_THROW(cle::tier0::create_or_check_broadcast_dst(src0, src1, output, cle::dType::FLOAT));
+}
+
 TEST_P(TestCreate, create_xy)
 {
 

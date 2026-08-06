@@ -340,6 +340,11 @@ infer_broadcast_shape(const std::vector<Array::Pointer> & arrays) -> std::array<
 auto
 create_or_check_broadcast_dst(const Array::Pointer & src0, const Array::Pointer & src1, Array::Pointer & dst, dType output_type) -> void
 {
+  if (src0 == nullptr || src1 == nullptr)
+  {
+    throw std::invalid_argument("Error: source Array is null");
+  }
+
   if (src0->device() != src1->device())
   {
     throw std::invalid_argument("Error: source Arrays are on different devices.");
@@ -354,13 +359,7 @@ create_or_check_broadcast_dst(const Array::Pointer & src0, const Array::Pointer 
     return;
   }
 
-  if (dst->width() != out_shape[0] || dst->height() != out_shape[1] || dst->depth() != out_shape[2])
-  {
-    throw std::invalid_argument("Error: provided 'dst' extents (" + std::to_string(dst->width()) + "," + std::to_string(dst->height()) +
-                                "," + std::to_string(dst->depth()) + ") do not match the broadcasted extents (" +
-                                std::to_string(out_shape[0]) + "," + std::to_string(out_shape[1]) + "," + std::to_string(out_shape[2]) +
-                                ").");
-  }
+  check_dst_shape(dst, out_shape[0], out_shape[1], out_shape[2], out_dim);
 }
 
 
