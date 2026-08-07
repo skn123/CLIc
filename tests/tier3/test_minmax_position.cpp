@@ -50,4 +50,37 @@ TEST_P(TestMinMaxPosition, minPosition)
     EXPECT_EQ(output[i], valid[i]);
   }
 }
+
+TEST_P(TestMinMaxPosition, maxPositionTieBreakMatchesNumpy)
+{
+  std::array<float, 2 * 2 * 3> input_tie = { 0, 0, 0, 9, 0, 0, 0, 0, 9, 0, 0, 0 };
+  std::array<size_t, 3>        valid = { 1, 1, 0 };
+
+  auto gpu_input = cle::Array::create(2, 2, 3, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->writeFrom(input_tie.data());
+
+  auto output = cle::tier3::maximum_position_func(device, gpu_input);
+
+  for (int i = 0; i < output.size(); i++)
+  {
+    EXPECT_EQ(output[i], valid[i]);
+  }
+}
+
+TEST_P(TestMinMaxPosition, minPositionTieBreakMatchesNumpy)
+{
+  std::array<float, 2 * 2 * 3> input_tie = { 1, 1, 1, -5, 1, 1, 1, 1, -5, 1, 1, 1 };
+  std::array<size_t, 3>        valid = { 1, 1, 0 };
+
+  auto gpu_input = cle::Array::create(2, 2, 3, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  gpu_input->writeFrom(input_tie.data());
+
+  auto output = cle::tier3::minimum_position_func(device, gpu_input);
+
+  for (int i = 0; i < output.size(); i++)
+  {
+    EXPECT_EQ(output[i], valid[i]);
+  }
+}
+
 INSTANTIATE_TEST_SUITE_P(InstantiationName, TestMinMaxPosition, ::testing::ValuesIn(getParameters()));

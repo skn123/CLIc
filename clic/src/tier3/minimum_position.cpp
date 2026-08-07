@@ -21,34 +21,31 @@ minimum_position_func(const Device::Pointer & device, const Array::Pointer & src
   Array::Pointer pos_z;
   Array::Pointer temp = src;
 
-  if (src->depth() > 1)
-  {
-    pos_z = tier1::z_position_of_minimum_z_projection_func(device, temp, nullptr);
-    temp = tier1::minimum_z_projection_func(device, temp, nullptr);
-  }
-  if (src->height() > 1)
-  {
-    pos_y = tier1::y_position_of_minimum_y_projection_func(device, temp, nullptr);
-    temp = tier1::minimum_y_projection_func(device, temp, nullptr);
-  }
+  // Repeated x-reductions follow original axis order x -> y -> z because each
+  // projection remaps remaining axes to the x/y plane.
   pos_x = tier1::x_position_of_minimum_x_projection_func(device, temp, nullptr);
   temp = tier1::minimum_x_projection_func(device, temp, nullptr);
 
+  pos_y = tier1::x_position_of_minimum_x_projection_func(device, temp, nullptr);
+  temp = tier1::minimum_x_projection_func(device, temp, nullptr);
 
-  if (pos_x != nullptr)
+  pos_z = tier1::x_position_of_minimum_x_projection_func(device, temp, nullptr);
+  temp = tier1::minimum_x_projection_func(device, temp, nullptr);
+
+  if (pos_z != nullptr)
   {
-    pos_x->readTo(&x_coord, { 1, 1, 1 }, { 0, 0, 0 });
-    coord[0] = x_coord;
+    pos_z->readTo(&z_coord, { 1, 1, 1 }, { 0, 0, 0 });
+    coord[2] = z_coord;
   }
   if (pos_y != nullptr)
   {
-    pos_y->readTo(&y_coord, { 1, 1, 1 }, { x_coord, 0, 0 });
+    pos_y->readTo(&y_coord, { 1, 1, 1 }, { z_coord, 0, 0 });
     coord[1] = y_coord;
   }
-  if (pos_z != nullptr)
+  if (pos_x != nullptr)
   {
-    pos_z->readTo(&z_coord, { 1, 1, 1 }, { x_coord, y_coord, 0 });
-    coord[2] = z_coord;
+    pos_x->readTo(&x_coord, { 1, 1, 1 }, { y_coord, z_coord, 0 });
+    coord[0] = x_coord;
   }
   return coord;
 }

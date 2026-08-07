@@ -126,5 +126,37 @@ create_xz(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::
 auto
 create_zx(const Array::Pointer & src, Array::Pointer & dst, dType type = dType::UNKNOWN, bool keep_dims = false) -> void;
 
+/**
+ * @brief Infer a broadcast-compatible output shape for two arrays.
+ *        Per-axis compatibility follows NumPy-like rules: equal extents or one side equals 1.
+ * @param src0 First source array.
+ * @param src1 Second source array.
+ * @return std::array<size_t, 3> Broadcasted output shape as {width, height, depth}.
+ */
+auto
+infer_broadcast_shape(const Array::Pointer & src0, const Array::Pointer & src1) -> std::array<size_t, 3>;
+
+/**
+ * @brief Infer a broadcast-compatible output shape for a list of arrays.
+ *        Per-axis compatibility follows NumPy-like rules: equal extents or one side equals 1.
+ * @param arrays Source arrays.
+ * @return std::array<size_t, 3> Broadcasted output shape as {width, height, depth}.
+ */
+auto
+infer_broadcast_shape(const std::vector<Array::Pointer> & arrays) -> std::array<size_t, 3>;
+
+/**
+ * @brief Create or validate a broadcasted destination array for two input arrays.
+ *        If dst is null, this allocates it with the broadcasted shape and output_type.
+ *        If dst is provided, this validates extents and dimension.
+ * @param src0 First source array.
+ * @param src1 Second source array.
+ * @param dst Destination array (in/out).
+ * @param output_type Destination data type.
+ * @return void
+ */
+auto
+create_or_check_broadcast_dst(const Array::Pointer & src0, const Array::Pointer & src1, Array::Pointer & dst, dType output_type) -> void;
+
 
 } // namespace cle::tier0

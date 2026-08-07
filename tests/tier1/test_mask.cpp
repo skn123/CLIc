@@ -47,4 +47,103 @@ TEST_P(TestMask, execute)
     EXPECT_EQ(output[i], valid[i]);
   }
 }
+
+TEST_P(TestMask, broadcast_src1_over_width_and_depth)
+{
+  std::string param = GetParam();
+  cle::BackendManager::getInstance().setBackend(param);
+  auto device = cle::BackendManager::getInstance().getBackend().getDevice("", "gpu");
+  device->setWaitToFinish(true);
+
+  constexpr size_t                          width = 3;
+  constexpr size_t                          height = 2;
+  constexpr size_t                          depth = 2;
+  std::array<float, width * height * depth> src_data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+  std::array<float, height>                 mask_data = { 1.0f, 0.0f };
+
+  auto src = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  auto mask = cle::Array::create(1, height, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  src->writeFrom(src_data.data());
+  mask->writeFrom(mask_data.data());
+
+  auto out = cle::tier1::mask_func(device, src, mask, nullptr);
+
+  EXPECT_EQ(out->width(), width);
+  EXPECT_EQ(out->height(), height);
+  EXPECT_EQ(out->depth(), depth);
+
+  std::array<float, width * height * depth> out_data = { 0 };
+  out->readTo(out_data.data());
+
+  for (size_t z = 0; z < depth; ++z)
+  {
+    for (size_t y = 0; y < height; ++y)
+    {
+      for (size_t x = 0; x < width; ++x)
+      {
+        const size_t idx = z * width * height + y * width + x;
+        EXPECT_FLOAT_EQ(out_data[idx], (mask_data[y] != 0.0f) ? src_data[idx] : 0.0f);
+      }
+    }
+  }
+}
+
+TEST_P(TestMask, broadcast_src0_over_width_and_depth)
+{
+  std::string param = GetParam();
+  cle::BackendManager::getInstance().setBackend(param);
+  auto device = cle::BackendManager::getInstance().getBackend().getDevice("", "gpu");
+  device->setWaitToFinish(true);
+
+  constexpr size_t                          width = 3;
+  constexpr size_t                          height = 2;
+  constexpr size_t                          depth = 2;
+  std::array<float, height>                 src_data = { 2.0f, 5.0f };
+  std::array<float, width * height * depth> mask_data = { 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0 };
+
+  auto src = cle::Array::create(1, height, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  auto mask = cle::Array::create(width, height, depth, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  src->writeFrom(src_data.data());
+  mask->writeFrom(mask_data.data());
+
+  auto out = cle::tier1::mask_func(device, src, mask, nullptr);
+
+  EXPECT_EQ(out->width(), width);
+  EXPECT_EQ(out->height(), height);
+  EXPECT_EQ(out->depth(), depth);
+
+  std::array<float, width * height * depth> out_data = { 0 };
+  out->readTo(out_data.data());
+
+  for (size_t z = 0; z < depth; ++z)
+  {
+    for (size_t y = 0; y < height; ++y)
+    {
+      for (size_t x = 0; x < width; ++x)
+      {
+        const size_t idx = z * width * height + y * width + x;
+        EXPECT_FLOAT_EQ(out_data[idx], (mask_data[idx] != 0.0f) ? src_data[y] : 0.0f);
+      }
+    }
+  }
+}
+
+TEST_P(TestMask, incompatible_shapes_throw)
+{
+  std::string param = GetParam();
+  cle::BackendManager::getInstance().setBackend(param);
+  auto device = cle::BackendManager::getInstance().getBackend().getDevice("", "gpu");
+  device->setWaitToFinish(true);
+
+  auto src = cle::Array::create(4, 2, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
+  auto mask = cle::Array::create(3, 2, 1, 2, cle::dType::FLOAT, cle::mType::BUFFER, device);
+
+  EXPECT_THROW(
+    {
+      auto out = cle::tier1::mask_func(device, src, mask, nullptr);
+      (void)out;
+    },
+    std::invalid_argument);
+}
+
 INSTANTIATE_TEST_SUITE_P(InstantiationName, TestMask, ::testing::ValuesIn(getParameters()));

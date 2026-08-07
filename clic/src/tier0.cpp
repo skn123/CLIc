@@ -248,5 +248,121 @@ create_zx(const Array::Pointer & src, Array::Pointer & dst, dType type, bool kee
   dst = Array::create(src->depth(), src->width(), 1, dim, type, src->mtype(), src->device());
 }
 
+auto
+infer_broadcast_shape(const Array::Pointer & src0, const Array::Pointer & src1) -> std::array<size_t, 3>
+{
+  if (src0 == nullptr || src1 == nullptr)
+  {
+    throw std::invalid_argument("Error: source Array is null");
+  }
+
+  const std::array<size_t, 3> shape0 = { src0->width(), src0->height(), src0->depth() };
+  const std::array<size_t, 3> shape1 = { src1->width(), src1->height(), src1->depth() };
+  std::array<size_t, 3>       out_shape = { 1, 1, 1 };
+
+  for (size_t axis = 0; axis < 3; ++axis)
+  {
+    const size_t lhs = shape0[axis];
+    const size_t rhs = shape1[axis];
+    if (lhs == rhs)
+    {
+      out_shape[axis] = lhs;
+    }
+    else if (lhs == 1)
+    {
+      out_shape[axis] = rhs;
+    }
+    else if (rhs == 1)
+    {
+      out_shape[axis] = lhs;
+    }
+    else
+    {
+      throw std::invalid_argument("Error: Arrays cannot be broadcast together. src0 shape is (" + std::to_string(shape0[0]) + "," +
+                                  std::to_string(shape0[1]) + "," + std::to_string(shape0[2]) + "), src1 shape is (" +
+                                  std::to_string(shape1[0]) + "," + std::to_string(shape1[1]) + "," + std::to_string(shape1[2]) + ").");
+    }
+  }
+
+  return out_shape;
+}
+
+auto
+infer_broadcast_shape(const std::vector<Array::Pointer> & arrays) -> std::array<size_t, 3>
+{
+  if (arrays.empty())
+  {
+    throw std::invalid_argument("Error: array list is empty.");
+  }
+
+  std::array<size_t, 3> out_shape = { 1, 1, 1 };
+  bool                  has_shape = false;
+
+  for (const auto & arr : arrays)
+  {
+    if (arr == nullptr)
+    {
+      throw std::invalid_argument("Error: source Array is null");
+    }
+
+    const std::array<size_t, 3> shape = { arr->width(), arr->height(), arr->depth() };
+    if (!has_shape)
+    {
+      out_shape = shape;
+      has_shape = true;
+      continue;
+    }
+
+    for (size_t axis = 0; axis < 3; ++axis)
+    {
+      const size_t lhs = out_shape[axis];
+      const size_t rhs = shape[axis];
+      if (lhs == rhs)
+      {
+        continue;
+      }
+      if (lhs == 1)
+      {
+        out_shape[axis] = rhs;
+        continue;
+      }
+      if (rhs == 1)
+      {
+        continue;
+      }
+      throw std::invalid_argument("Error: Arrays cannot be broadcast together.");
+    }
+  }
+
+  return out_shape;
+}
+
+auto
+create_or_check_broadcast_dst(const Array::Pointer & src0, const Array::Pointer & src1, Array::Pointer & dst, dType output_type) -> void
+{
+  if (src0 == nullptr || src1 == nullptr)
+  {
+    throw std::invalid_argument("Error: source Array is null");
+  }
+
+  if (src0->device() != src1->device())
+  {
+    throw std::invalid_argument("Error: source Arrays are on different devices.");
+  }
+
+  const auto out_shape = infer_broadcast_shape(src0, src1);
+  // preserve logical rank (numpy-style: max of operand ranks) instead of
+  // re-inferring from shape, which would squeeze away leading size-1 axes
+  const unsigned int out_dim = src0->dimension() > src1->dimension() ? src0->dimension() : src1->dimension();
+
+  if (dst == nullptr)
+  {
+    dst = Array::create(out_shape[0], out_shape[1], out_shape[2], out_dim, output_type, src0->mtype(), src0->device());
+    return;
+  }
+
+  check_dst_shape(dst, out_shape[0], out_shape[1], out_shape[2], out_dim);
+}
+
 
 } // namespace cle::tier0

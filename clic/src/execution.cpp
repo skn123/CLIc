@@ -1,6 +1,7 @@
 #include "execution.hpp"
 #include "backend.hpp"
 #include "clic.hpp"
+#include "tier0.hpp"
 #include <cctype>
 #include <cstring>
 #include <set>
@@ -292,8 +293,13 @@ execute_separable(const Device::Pointer &      device,
   auto execute_if_needed = [&](int dim, int idx, auto & input, auto & output) {
     if (dim > 1 && sigma[idx] > 0)
     {
-      const ParameterList parameters = { { "src", input },     { "dst", output },   { "dim", idx },
-                                         { "N", radius[idx] }, { "s", sigma[idx] }, { "order", orders[idx] } };
+      ParameterList parameters;
+      parameters.emplace_back("src", input);
+      parameters.emplace_back("dst", output);
+      parameters.emplace_back("dim", idx);
+      parameters.emplace_back("N", radius[idx]);
+      parameters.emplace_back("s", sigma[idx]);
+      parameters.emplace_back("order", orders[idx]);
       execute(device, kernel, parameters, global_range);
     }
     else
@@ -588,6 +594,7 @@ evaluate(const Device::Pointer &            device,
     std::string name;
     float       val;
   };
+
   std::vector<ArrayParam>  arrays;
   std::vector<ScalarParam> scalars;
 
@@ -599,11 +606,6 @@ evaluate(const Device::Pointer &            device,
     if (const auto * arr = std::get_if<Array::Pointer>(&p))
     {
       Array::check_ptr(*arr, ("Error: array '" + name + "' is null in evaluate().").c_str());
-      if ((*arr)->size() != output->size())
-      {
-        throw std::invalid_argument("Error: array '" + name + "' size (" + std::to_string((*arr)->size()) +
-                                    ") does not match output size (" + std::to_string(output->size()) + ").");
-      }
       arrays.push_back({ name, *arr });
     }
     else if (const auto * f = std::get_if<float>(&p))
@@ -633,6 +635,22 @@ evaluate(const Device::Pointer &            device,
     throw std::invalid_argument("Error: at least one Array parameter is required in evaluate().");
   }
 
+  std::vector<Array::Pointer> array_inputs;
+  array_inputs.reserve(arrays.size());
+  for (const auto & array_param : arrays)
+  {
+    array_inputs.push_back(array_param.arr);
+  }
+
+  const auto broadcast_shape = tier0::infer_broadcast_shape(array_inputs);
+  if (output->width() != broadcast_shape[0] || output->height() != broadcast_shape[1] || output->depth() != broadcast_shape[2])
+  {
+    throw std::invalid_argument("Error: output shape (" + std::to_string(output->width()) + "," + std::to_string(output->height()) + "," +
+                                std::to_string(output->depth()) + ") does not match broadcasted shape (" +
+                                std::to_string(broadcast_shape[0]) + "," + std::to_string(broadcast_shape[1]) + "," +
+                                std::to_string(broadcast_shape[2]) + ") in evaluate().");
+  }
+
   // --- Build ParameterList matching kernel signature order ---
   // Signature: (IMAGE_a_TYPE, IMAGE_b_TYPE, ..., IMAGE_dst_TYPE, float s1, float s2, ...)
   // IMAGE_xxx_TYPE expands to just a pointer, so ParameterList order = arrays, dst, scalars
@@ -640,12 +658,12 @@ evaluate(const Device::Pointer &            device,
 
   for (const auto & a : arrays)
   {
-    param_list.push_back({ "arr_" + a.name, a.arr });
+    param_list.emplace_back("arr_" + a.name, a.arr);
   }
-  param_list.push_back({ "dst", output });
+  param_list.emplace_back("dst", output);
   for (const auto & s : scalars)
   {
-    param_list.push_back({ s.name, s.val });
+    param_list.emplace_back(s.name, s.val);
   }
 
   // --- Generate macro-compatible kernel source ---
