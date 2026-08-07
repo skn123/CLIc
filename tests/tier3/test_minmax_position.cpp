@@ -53,12 +53,8 @@ TEST_P(TestMinMaxPosition, minPosition)
 
 TEST_P(TestMinMaxPosition, maxPositionTieBreakMatchesNumpy)
 {
-  std::array<float, 2 * 2 * 3> input_tie = {
-    0, 0, 0, 9,
-    0, 0, 0, 0,
-    9, 0, 0, 0
-  };
-  std::array<size_t, 3> valid = { 1, 1, 0 };
+  std::array<float, 2 * 2 * 3> input_tie = { 0, 0, 0, 9, 0, 0, 0, 0, 9, 0, 0, 0 };
+  std::array<size_t, 3>        valid = { 1, 1, 0 };
 
   auto gpu_input = cle::Array::create(2, 2, 3, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
   gpu_input->writeFrom(input_tie.data());
@@ -73,12 +69,8 @@ TEST_P(TestMinMaxPosition, maxPositionTieBreakMatchesNumpy)
 
 TEST_P(TestMinMaxPosition, minPositionTieBreakMatchesNumpy)
 {
-  std::array<float, 2 * 2 * 3> input_tie = {
-    1, 1, 1, -5,
-    1, 1, 1, 1,
-    -5, 1, 1, 1
-  };
-  std::array<size_t, 3> valid = { 1, 1, 0 };
+  std::array<float, 2 * 2 * 3> input_tie = { 1, 1, 1, -5, 1, 1, 1, 1, -5, 1, 1, 1 };
+  std::array<size_t, 3>        valid = { 1, 1, 0 };
 
   auto gpu_input = cle::Array::create(2, 2, 3, 3, cle::dType::FLOAT, cle::mType::BUFFER, device);
   gpu_input->writeFrom(input_tie.data());
