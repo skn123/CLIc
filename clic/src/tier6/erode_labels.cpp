@@ -21,10 +21,13 @@ erode_labels_func(const Device::Pointer & device, const Array::Pointer & src, Ar
     return tier1::copy_func(device, src, dst);
   }
 
-  auto temp = tier1::detect_label_edges_func(device, src, nullptr);
-  auto temp1 = tier1::binary_not_func(device, temp, nullptr);
-  tier1::mask_func(device, src, temp1, temp);
-  temp1.reset();
+  auto temp = Array::create(dst);
+  {
+    auto temp1 = Array::create(temp);
+    tier1::detect_label_edges_func(device, src, temp);
+    tier1::binary_not_func(device, temp, temp1);
+    tier1::mask_func(device, src, temp1, temp);
+  }
 
   if (radius == 1)
   {
